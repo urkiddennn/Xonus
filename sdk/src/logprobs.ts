@@ -1,4 +1,13 @@
-import type { LogprobsResultTopCandidates } from '@google/genai';
+/** A candidate token from any provider. */
+export interface LogprobCandidate {
+  token?: string;
+  logProbability?: number;
+}
+
+/** The candidates observed at one decoding step. */
+export interface LogprobStep {
+  candidates?: readonly LogprobCandidate[];
+}
 
 /** Log-odds are capped so responses stay JSON-safe (`Infinity` is not). */
 export const MAX_LOG_ODDS = 99;
@@ -56,12 +65,12 @@ const EMPTY_DISTRIBUTION: LabelDistribution = {
 };
 
 /**
- * Turn a Gemini logprobs step into a probability distribution over option
+ * Turn a provider logprobs step into a probability distribution over option
  * letters. Multiple token spellings of the same letter are summed; the result
  * is then normalized over the valid options only.
  */
 export function extractLabelDistribution(
-  step: LogprobsResultTopCandidates | undefined,
+  step: LogprobStep | undefined,
   letters: readonly string[],
 ): LabelDistribution {
   if (!step?.candidates?.length || letters.length === 0) {

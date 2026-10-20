@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    <template>
+      <style>
+        #scene-04-gate {
+          position: absolute;
+          inset: 0;
+          width: 100%;
+          height: 100%;
+          overflow: hidden;
+        }
+
+        .s4-stage {
+          position: absolute;
+          inset: 0;
+        }
+
+        .s4-ghost {
+          position: absolute;
+          left: -30px;
+          bottom: -160px;
+          font-family: var(--font-display);
+          font-size: 380px;
+          font-weight: 700;
+          letter-spacing: -0.08em;
+          line-height: 0.74;
+          color: rgba(255, 255, 255, 0.024);
+          white-space: nowrap;
+          text-transform: uppercase;
+        }
+
+        .s4-kicker {
+          position: absolute;
+          left: 140px;
+          top: 126px;
+        }
+
+        .s4-headline {
+          position: absolute;
+          left: 140px;
+          top: 204px;
+          width: 730px;
+          font-size: 82px;
+        }
+
+        .s4-subcopy {
+          position: absolute;
+          left: 140px;
+          top: 434px;
+          width: 700px;
+          font-size: 26px;
+        }
+
+        .s4-gauge {
+          position: absolute;
+          left: 140px;
+          top: 530px;
+          width: 520px;
+          height: 520px;
+        }
+
+        .s4-ring {
+          width: 520px;
+          height: 520px;
+        }
+
+        .s4-ring-track {
+          fill: none;
+          stroke: rgba(255, 255, 255, 0.065);
+          stroke-width: 14;
+        }
+
+        .s4-ring-progress {
+          fill: none;
+          stroke: url(#s4-ring-grad);
+          stroke-width: 14;
+          stroke-linecap: round;
+          filter: drop-shadow(0 0 10px rgba(184, 255, 92, 0.35));
+        }
+
+        .s4-gate-tick {
+          stroke: #b8ff5c;
+          stroke-width: 3;
+          stroke-linecap: round;
+        }
+
+        .s4-ring-center {
+          position: absolute;
+          inset: 0;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+        }
+
+        .s4-mass-value {
+          color: var(--text);
+          font-family: var(--font-mono);
+          font-size: 92px;
+          font-weight: 500;
+          line-height: 1;
+          letter-spacing: -0.06em;
+          font-variant-numeric: tabular-nums;
+        }
+
+        .s4-mass-label {
+          margin-top: 16px;
+          color: var(--muted);
+          font-family: var(--font-mono);
+          font-size: 12px;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
+        }
+
+        .s4-mass-sub {
+          margin-top: 8px;
+          color: var(--muted);
+          font-family: var(--font-mono);
+          font-size: 11px;
+          letter-spacing: 0.08em;
+        }
+
+        .s4-gate-pill {
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: 402px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          width: max-content;
+          margin-inline: auto;
+          padding: 8px 13px;
+          border: 1px solid rgba(184, 255, 92, 0.3);
+          border-radius: 999px;
+          background: rgba(184, 255, 92, 0.09);
+          color: var(--accent);
+          font-family: var(--font-mono);
+          font-size: 11px;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          white-space: nowrap;
+          opacity: 0;
+        }
+
+        .s4-gate-pill i {
+          display: grid;
+          place-items: center;
+          width: 14px;
+          height: 14px;
+          border: 1px solid rgba(184, 255, 92, 0.5);
+          border-radius: 50%;
+          font-size: 9px;
+          font-style: normal;
+        }
+
+        .s4-card {
+          left: 900px;
+          top: 242px;
+          width: 880px;
+          height: 718px;
+        }
+
+        .s4-card .panel-head {
+          height: 64px;
+          padding: 0 22px;
+        }
+
+        .s4-body {
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: 64px;
+          bottom: 80px;
+          padding: 26px 30px;
+          background:
+            radial-gradient(520px 240px at 100% 0%, rgba(92, 225, 230, 0.045), transparent 70%),
+            #070b11;
+        }
+
+        .s4-request {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 18px;
+          padding-bottom: 20px;
+          border-bottom: 1px solid var(--border);
+          color: var(--muted);
+          font-family: var(--font-mono);
+          font-size: 13px;
+          letter-spacing: 0.04em;
+        }
+
+        .s4-request strong {
+          color: var(--cyan);
+          font-weight: 500;
+        }
+
+        .s4-code {
+          margin-top: 22px;
+          color: var(--text-soft);
+          font-family: var(--font-mono);
+          font-size: 23px;
+          line-height: 1.62;
+          letter-spacing: -0.01em;
+        }
+
+        .s4-code-line {
+          display: flex;
+          align-items: baseline;
+          gap: 0;
+          white-space: pre;
+        }
+
+        .s4-code-line .key {
+          color: var(--violet);
+        }
+
+        .s4-code-line .str {
+          color: var(--accent);
+        }
+
+        .s4-code-line .num {
+          color: var(--cyan);
+        }
+
+        .s4-code-line .bool {
+          color: var(--accent);
+          font-weight: 600;
+        }
+
+        .s4-code-line .punct {
+          color: #8e9aab;
+        }
+
+        .s4-confident-line {
+          position: relative;
+          margin: 4px -12px;
+          padding: 2px 12px;
+          border-radius: 6px;
+          background: rgba(184, 255, 92, 0.07);
+        }
+
+        .s4-confident-line::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 8px;
+          bottom: 8px;
+          width: 2px;
+          border-radius: 2px;
+          background: var(--accent);
+        }
+
+        .s4-foot {
+          position: absolute;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          height: 80px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 20px;
+          padding: 0 24px;
+          border-top: 1px solid var(--border);
+          background: rgba(255, 255, 255, 0.016);
+        }
+
+        .s4-safe {
+          display: inline-flex;
+          align-items: center;
+          gap: 9px;
+          color: var(--accent);
+          font-family: var(--font-mono);
+          font-size: 11px;
+          letter-spacing: 0.08em;
+        }
+
+        .s4-safe i {
+          display: grid;
+          place-items: center;
+          width: 17px;
+          height: 17px;
+          border: 1px solid rgba(184, 255, 92, 0.45);
+          border-radius: 50%;
+          font-size: 10px;
+          font-style: normal;
+        }
+
+        .s4-snippet {
+          color: var(--text-soft);
+          font-family: var(--font-mono);
+          font-size: 13px;
+          letter-spacing: -0.01em;
+        }
+
+        .s4-snippet .kw {
+          color: var(--violet);
+        }
+
+        .s4-snippet .fn {
+          color: var(--cyan);
+        }
+
+        .s4-flash {
+          position: absolute;
+          inset: 0;
+          opacity: 0;
+          background: radial-gradient(circle at 62% 48%, rgba(184, 255, 92, 0.22), transparent 58%);
+        }
+      </style>
+
+      <div data-hf-id="hf-ere7" id="scene-04-gate" data-composition-id="scene-04-gate" data-width="1920" data-height="1080">
+        <div data-hf-id="hf-fbjk" class="s4-stage">
+          <div data-hf-id="hf-26lf" class="s4-ghost" data-layout-ignore data-layout-allow-overflow data-layout-allow-occlusion>Mass</div>
+          <p data-hf-id="hf-1xw8" class="kicker s4-kicker">04 / The gate — answer mass</p>
+
+          <h2 data-hf-id="hf-ahhl" class="headline s4-headline">
+            <span data-hf-id="hf-ltft" class="line">Confidence is easy.</span>
+            <span data-hf-id="hf-5kyk" class="line">Calibration is the <span data-hf-id="hf-kepc" class="cyan">hard part.</span></span>
+          </h2>
+
+          <p data-hf-id="hf-ypbc" class="subcopy s4-subcopy">
+            Xonus only calls a decision confident when 0.99 of the probability mass lands on valid options.
+            If the evidence leaks, it says so.
+          </p>
+
+          <div data-hf-id="hf-8hke" class="s4-gauge" id="s4-gauge">
+            <svg data-hf-id="hf-9ha3" class="s4-ring" viewBox="0 0 520 520" fill="none" aria-hidden="true">
+              <defs data-hf-id="hf-mh0t">
+                <linearGradient data-hf-id="hf-cgw7" id="s4-ring-grad" x1="80" y1="440" x2="460" y2="80" gradientUnits="userSpaceOnUse">
+                  <stop data-hf-id="hf-t7vz" stop-color="#5CE1E6" />
+                  <stop data-hf-id="hf-nxqy" offset="0.64" stop-color="#B8FF5C" />
+                  <stop data-hf-id="hf-f5ft" offset="1" stop-color="#B8FF5C" />
+                </linearGradient>
+              </defs>
+              <circle data-hf-id="hf-ai6h" class="s4-ring-track" cx="260" cy="260" r="220" />
+              <circle data-hf-id="hf-nyaz"
+                id="s4-ring-progress"
+                class="s4-ring-progress"
+                cx="260"
+                cy="260"
+                r="220"
+                pathLength="1"
+                stroke-dasharray="1"
+                stroke-dashoffset="1"
+                transform="rotate(-90 260 260)"
+              />
+              <line data-hf-id="hf-ddkb" id="s4-gate-tick" class="s4-gate-tick" x1="260" y1="28" x2="260" y2="54" transform="rotate(356.4 260 260)" opacity="0" />
+            </svg>
+
+            <div data-hf-id="hf-7awq" class="s4-ring-center">
+              <div data-hf-id="hf-h5dk" class="s4-mass-value" id="s4-mass-value">0.000</div>
+              <div data-hf-id="hf-3nej" class="s4-mass-label">Answer mass</div>
+              <div data-hf-id="hf-thj4" class="s4-mass-sub">0.001 off-protocol</div>
+            </div>
+
+            <span data-hf-id="hf-oj3v" class="s4-gate-pill" id="s4-gate-pill"><i data-hf-id="hf-q7i5">✓</i>Gate passed · 0.99</span>
+          </div>
+
+          <div data-hf-id="hf-fglg" class="panel s4-card" id="s4-card">
+            <div data-hf-id="hf-95fx" class="panel-head">
+              <div data-hf-id="hf-8oyb" class="panel-title">
+                <span data-hf-id="hf-tgpa" class="panel-dots"><i data-hf-id="hf-ek3s" class="panel-dot"></i><i data-hf-id="hf-j8ao" class="panel-dot"></i><i data-hf-id="hf-i1dl" class="panel-dot"></i></span>
+                xonus / decide
+              </div>
+              <span data-hf-id="hf-n3vz" class="panel-badge">200 OK</span>
+            </div>
+
+            <div data-hf-id="hf-ow1a" class="s4-body">
+              <div data-hf-id="hf-txyh" class="s4-request">
+                <span data-hf-id="hf-q9f4"><strong data-hf-id="hf-24kc">POST</strong> /v1/decide</span>
+                <span data-hf-id="hf-qgbk">184 ms</span>
+              </div>
+
+              <div data-hf-id="hf-iull" class="s4-code">
+                <div data-hf-id="hf-1dps" class="s4-code-line"><span data-hf-id="hf-hi1g" class="punct">{</span></div>
+                <div data-hf-id="hf-hsi0" class="s4-code-line"><span data-hf-id="hf-uckh">&nbsp;&nbsp;</span><span data-hf-id="hf-zyxw" class="key">"decision"</span><span data-hf-id="hf-ro4n" class="punct">:</span> <span data-hf-id="hf-okuz" class="str">"Billing"</span><span data-hf-id="hf-ytn5" class="punct">,</span></div>
+                <div data-hf-id="hf-glkx" class="s4-code-line"><span data-hf-id="hf-l73p">&nbsp;&nbsp;</span><span data-hf-id="hf-ver9" class="key">"provider"</span><span data-hf-id="hf-ki2v" class="punct">:</span> <span data-hf-id="hf-ayys" class="str">"openai"</span><span data-hf-id="hf-20at" class="punct">,</span></div>
+                <div data-hf-id="hf-gzvy" class="s4-code-line"><span data-hf-id="hf-me0s">&nbsp;&nbsp;</span><span data-hf-id="hf-c6d2" class="key">"confidence"</span><span data-hf-id="hf-k3ru" class="punct">:</span> <span data-hf-id="hf-r1p5" class="num">0.998</span><span data-hf-id="hf-377w" class="punct">,</span></div>
+                <div data-hf-id="hf-fsyv" class="s4-code-line"><span data-hf-id="hf-lzpr">&nbsp;&nbsp;</span><span data-hf-id="hf-fufm" class="key">"logOdds"</span><span data-hf-id="hf-jpgt" class="punct">:</span> <span data-hf-id="hf-4l2a" class="num">6.21</span><span data-hf-id="hf-2swv" class="punct">,</span></div>
+                <div data-hf-id="hf-g79w" class="s4-code-line"><span data-hf-id="hf-n6mu">&nbsp;&nbsp;</span><span data-hf-id="hf-llrk" class="key">"answerMass"</span><span data-hf-id="hf-mhm0" class="punct">:</span> <span data-hf-id="hf-rg06" class="num">0.999</span><span data-hf-id="hf-3zty" class="punct">,</span></div>
+                <div data-hf-id="hf-50qx" class="s4-code-line s4-confident-line"><span data-hf-id="hf-msbt">&nbsp;&nbsp;</span><span data-hf-id="hf-ra5i" class="key">"confident"</span><span data-hf-id="hf-m3az" class="punct">:</span> <span data-hf-id="hf-o435" class="bool">true</span><span data-hf-id="hf-3lix" class="punct">,</span></div>
+                <div data-hf-id="hf-f0ct" class="s4-code-line"><span data-hf-id="hf-nz8w">&nbsp;&nbsp;</span><span data-hf-id="hf-cwbx" class="key">"passes"</span><span data-hf-id="hf-lozy" class="punct">:</span> <span data-hf-id="hf-kud6" class="num">1</span></div>
+                <div data-hf-id="hf-fenu" class="s4-code-line"><span data-hf-id="hf-iani" class="punct">}</span></div>
+              </div>
+            </div>
+
+            <div data-hf-id="hf-61x6" class="s4-foot">
+              <span data-hf-id="hf-6yor" class="s4-safe" id="s4-safe"><i data-hf-id="hf-qrv5">✓</i>Safe to branch</span>
+              <span data-hf-id="hf-zp5l" class="s4-snippet"><span data-hf-id="hf-xko0" class="kw">if</span> (result.confident) <span data-hf-id="hf-ma7y" class="fn">route</span>(result.decision);</span>
+            </div>
+          </div>
+
+          <div data-hf-id="hf-xk0a" class="s4-flash" id="s4-flash"></div>
+        </div>
+      </div>
+
+      <script>
+        const tl = gsap.timeline({ paused: true });
+
+        tl.fromTo('#s4-stage', { opacity: 0 }, { opacity: 1, duration: 0.3, ease: 'power1.out' }, 0);
+        tl.fromTo('.s4-headline .line', { y: 34, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: 'power3.out', stagger: 0.08 }, 0.12);
+        tl.fromTo('.s4-subcopy', { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: 'power2.out' }, 0.5);
+
+        tl.fromTo('#s4-gauge', { scale: 0.9, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.85, ease: 'expo.out' }, 0.28);
+        tl.fromTo('#s4-ring-progress', { strokeDashoffset: 1 }, { strokeDashoffset: 0.001, duration: 2.25, ease: 'power2.inOut' }, 0.62);
+
+        const s4 = { mass: 0 };
+        tl.to(
+          s4,
+          {
+            mass: 0.999,
+            duration: 2.25,
+            ease: 'power2.inOut',
+            onUpdate: () => {
+              document.querySelector('#s4-mass-value').textContent = s4.mass.toFixed(3);
+            },
+          },
+          0.62
+        );
+
+        tl.fromTo('#s4-gate-tick', { opacity: 0 }, { opacity: 1, duration: 0.32, ease: 'power2.out' }, 2.45);
+        tl.to('#s4-mass-value', { color: '#b8ff5c', duration: 0.3, ease: 'power1.out' }, 2.45);
+        tl.fromTo('#s4-gate-pill', { y: 8, opacity: 0 }, { y: 0, opacity: 1, duration: 0.42, ease: 'back.out(1.5)' }, 2.55);
+
+        tl.fromTo(
+          '#s4-card',
+          { rotationY: -9, y: 64, opacity: 0, transformPerspective: 1400 },
+          { rotationY: 0, y: 0, opacity: 1, duration: 0.95, ease: 'expo.out' },
+          0.24
+        );
+        tl.to('#s4-card', { y: -8, duration: 0.65, ease: 'sine.inOut', yoyo: true, repeat: 1 }, 2.9);
+
+        tl.fromTo('.s4-code-line', { y: 12, opacity: 0 }, { y: 0, opacity: 1, duration: 0.42, ease: 'power2.out', stagger: 0.085 }, 0.95);
+        tl.fromTo('#s4-safe', { x: -12, opacity: 0 }, { x: 0, opacity: 1, duration: 0.45, ease: 'power2.out' }, 3.15);
+        tl.fromTo('.s4-snippet', { opacity: 0 }, { opacity: 1, duration: 0.45, ease: 'power2.out' }, 3.3);
+        tl.to('.s4-confident-line', { backgroundColor: 'rgba(184, 255, 92, 0.14)', duration: 0.25, ease: 'power1.out' }, 2.5);
+        tl.to('#s4-card', { borderColor: 'rgba(184, 255, 92, 0.34)', duration: 0.35, ease: 'power1.out' }, 2.5);
+
+        tl.fromTo('#s4-flash', { opacity: 0 }, { opacity: 1, duration: 0.16, ease: 'power1.out' }, 4.35);
+        tl.to('#s4-flash', { opacity: 0, duration: 0.32, ease: 'power1.in' }, 4.51);
+        tl.to('#s4-gauge', { scale: 0.92, opacity: 0, duration: 0.4, ease: 'power2.in' }, 4.45);
+        tl.to('#s4-card', { y: 18, opacity: 0, duration: 0.4, ease: 'power2.in' }, 4.45);
+
+        window.__timelines['scene-04-gate'] = tl;
+      </script>
+    </template>
+  </body>
+</html>

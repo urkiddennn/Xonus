@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>Xonus — Decisions that stop the moment they're certain</title>
+    <link rel="stylesheet" href="/assets/base.css" />
+    <script src="assets/vendor/gsap.min.js"></script>
+    <style>
+      #xonus-promo {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #05070b;
+      }
+    </style>
+  </head>
+  <body>
+    <div data-hf-id="hf-nkda"
+      id="xonus-promo"
+      data-composition-id="xonus-promo"
+      data-start="0"
+      data-width="1920"
+      data-height="1080"
+      data-duration="32"
+    >
+      <!-- Shared background: continuous across every scene. -->
+      <div data-hf-id="hf-37x7" id="bg" aria-hidden="true" data-layout-allow-overflow>
+        <div data-hf-id="hf-7v19" class="bg-base"></div>
+        <div data-hf-id="hf-y2ee" id="glow-lime" class="bg-glow"></div>
+        <div data-hf-id="hf-t08w" id="glow-cyan" class="bg-glow"></div>
+        <div data-hf-id="hf-yeaw" id="glow-violet" class="bg-glow"></div>
+        <div data-hf-id="hf-pt76" id="problem-glow" class="bg-glow"></div>
+        <div data-hf-id="hf-gs5t" id="grid"></div>
+      </div>
+
+      <!-- Persistent production chrome. -->
+      <div data-hf-id="hf-nhpy" id="chrome-top" aria-hidden="true">
+        <div data-hf-id="hf-s7q2" class="chrome-brand">
+          <svg data-hf-id="hf-a0fz" class="chrome-x" viewBox="0 0 32 32" fill="none">
+            <defs data-hf-id="hf-mh0t">
+              <linearGradient data-hf-id="hf-897q" id="chrome-x-grad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+                <stop data-hf-id="hf-d4ei" stop-color="#B8FF5C" />
+                <stop data-hf-id="hf-f6pg" offset="1" stop-color="#5CE1E6" />
+              </linearGradient>
+            </defs>
+            <rect data-hf-id="hf-4img" width="32" height="32" rx="9" fill="url(#chrome-x-grad)" />
+            <path data-hf-id="hf-iff6" d="M10 10l12 12M22 10L10 22" stroke="#061008" stroke-width="3.2" stroke-linecap="round" />
+          </svg>
+          <span data-hf-id="hf-srmm">Xonus</span>
+          <span data-hf-id="hf-ryhb" class="chrome-divider"></span>
+          <span data-hf-id="hf-ozmy" class="chrome-sub">Decision Engine</span>
+        </div>
+        <div data-hf-id="hf-jw8n" class="chrome-right">
+          <span data-hf-id="hf-orew">Promo / 01</span>
+          <span data-hf-id="hf-j3zk" class="chrome-live"><i data-hf-id="hf-ofdg" class="chrome-dot"></i>32.0 sec</span>
+        </div>
+      </div>
+
+      <div data-hf-id="hf-bz9g" id="chrome-bottom" aria-hidden="true">
+        <span data-hf-id="hf-fnuw">Model-agnostic&nbsp;&nbsp;·&nbsp;&nbsp;Calibrated&nbsp;&nbsp;·&nbsp;&nbsp;Early-stop</span>
+        <div data-hf-id="hf-i8zg" class="chapter-wrap">
+          <span data-hf-id="hf-gtu3" class="chrome-chapter">01 / Intro</span>
+          <span data-hf-id="hf-ndvo" class="chrome-chapter">02 / The problem</span>
+          <span data-hf-id="hf-kquc" class="chrome-chapter">03 / Early stop</span>
+          <span data-hf-id="hf-dna4" class="chrome-chapter">04 / The gate</span>
+          <span data-hf-id="hf-atij" class="chrome-chapter">05 / Any backend</span>
+          <span data-hf-id="hf-541i" class="chrome-chapter">06 / Proof</span>
+          <span data-hf-id="hf-x6k4" class="chrome-chapter">07 / Outro</span>
+        </div>
+      </div>
+
+      <i data-hf-id="hf-7bhl" class="corner tl"></i>
+      <i data-hf-id="hf-b647" class="corner tr"></i>
+      <i data-hf-id="hf-uwyn" class="corner bl"></i>
+      <i data-hf-id="hf-c54x" class="corner br"></i>
+
+      <!-- Scenes. All seven are transparent sub-compositions over the shared background. -->
+      <div data-hf-id="hf-pe6t"
+        id="el-scene-01"
+        class="clip"
+        data-composition-id="scene-01-intro"
+        data-composition-src="compositions/scene-01-intro.html"
+        data-start="0"
+        data-duration="4"
+        data-track-index="1"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+
+      <div data-hf-id="hf-r147"
+        id="el-scene-02"
+        class="clip"
+        data-composition-id="scene-02-problem"
+        data-composition-src="compositions/scene-02-problem.html"
+        data-start="4"
+        data-duration="5"
+        data-track-index="1"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+
+      <div data-hf-id="hf-bfko"
+        id="el-scene-03"
+        class="clip"
+        data-composition-id="scene-03-early-stop"
+        data-composition-src="compositions/scene-03-early-stop.html"
+        data-start="9"
+        data-duration="6"
+        data-track-index="1"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+
+      <div data-hf-id="hf-mp6l"
+        id="el-scene-04"
+        class="clip"
+        data-composition-id="scene-04-gate"
+        data-composition-src="compositions/scene-04-gate.html"
+        data-start="15"
+        data-duration="5"
+        data-track-index="1"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+
+      <div data-hf-id="hf-jzbb"
+        id="el-scene-05"
+        class="clip"
+        data-composition-id="scene-05-backends"
+        data-composition-src="compositions/scene-05-backends.html"
+        data-start="20"
+        data-duration="4"
+        data-track-index="1"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+
+      <div data-hf-id="hf-b3jq"
+        id="el-scene-06"
+        class="clip"
+        data-composition-id="scene-06-proof"
+        data-composition-src="compositions/scene-06-proof.html"
+        data-start="24"
+        data-duration="4"
+        data-track-index="1"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+
+      <div data-hf-id="hf-tv0b"
+        id="el-scene-07"
+        class="clip"
+        data-composition-id="scene-07-outro"
+        data-composition-src="compositions/scene-07-outro.html"
+        data-start="28"
+        data-duration="4"
+        data-track-index="1"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+
+      <!-- One continuous score, mixed at the root. -->
+      <audio data-hf-id="hf-ctwq"
+        id="el-score"
+        src="assets/audio/xonus-score.mp3"
+        data-start="0"
+        data-duration="32"
+        data-track-index="10"
+        data-volume="0.9"
+        preload="auto"
+      ></audio>
+
+      <div id="cut-flash" aria-hidden="true"></div>
+      <div id="cut-line" aria-hidden="true"></div>
+      <div data-hf-id="hf-ftr7" id="grain" aria-hidden="true"></div>
+      <div data-hf-id="hf-mjac" id="vignette" aria-hidden="true"></div>
+      <div data-hf-id="hf-dsb7" id="progress" aria-hidden="true"><div data-hf-id="hf-c4bu" id="progress-fill"></div></div>
+      <div data-hf-id="hf-k0as" id="end-fade" aria-hidden="true"></div>
+    </div>
+
+    <script>
+      const tl = gsap.timeline({ paused: true });
+
+      // Chrome enters once.
+      tl.fromTo('#chrome-top', { opacity: 0, y: -12 }, { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' }, 0.15);
+      tl.fromTo('#chrome-bottom', { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' }, 0.22);
+      tl.fromTo('.corner', { opacity: 0 }, { opacity: 0.46, duration: 0.8, ease: 'power2.out' }, 0.3);
+
+      // Progress + chapter readout.
+      tl.fromTo('#progress-fill', { scaleX: 0 }, { scaleX: 1, duration: 32, ease: 'none' }, 0);
+      const chapters = gsap.utils.toArray('.chrome-chapter');
+      tl.set(chapters, { opacity: 0 }, 0);
+      tl.set(chapters[0], { opacity: 1 }, 0);
+      [4, 9, 15, 20, 24, 28].forEach((time, index) => {
+        tl.set(chapters[index], { opacity: 0 }, time);
+        tl.set(chapters[index + 1], { opacity: 1 }, time);
+      });
+
+      // Ambient background drift — one shared world for all seven scenes.
+      tl.fromTo('#glow-lime', { x: -20, y: 0, scale: 1 }, { x: 70, y: 42, scale: 1.08, duration: 14, ease: 'sine.inOut', yoyo: true, repeat: 1 }, 0);
+      tl.fromTo('#glow-cyan', { x: 20, y: 0, scale: 1 }, { x: -56, y: 34, scale: 1.06, duration: 15, ease: 'sine.inOut', yoyo: true, repeat: 1 }, 0);
+      tl.fromTo('#glow-violet', { x: 0, y: 18, scale: 1 }, { x: 44, y: -30, scale: 1.07, duration: 12, ease: 'sine.inOut', yoyo: true, repeat: 1 }, 0);
+      tl.to('.chrome-dot', { opacity: 0.28, duration: 1.2, ease: 'sine.inOut', yoyo: true, repeat: 25 }, 0.4);
+
+      // A light leak and a one-pixel cut line make each hard scene change deliberate.
+      [4, 9, 15, 20, 24, 28].forEach((time) => {
+        tl.fromTo('#cut-flash', { opacity: 0 }, { opacity: 0.9, duration: 0.07, ease: 'power2.out' }, time - 0.03);
+        tl.to('#cut-flash', { opacity: 0, duration: 0.32, ease: 'power2.in' }, time + 0.04);
+        tl.fromTo('#cut-line', { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: 0.2, ease: 'power3.inOut' }, time - 0.05);
+        tl.to('#cut-line', { opacity: 0, duration: 0.22, ease: 'power2.in' }, time + 0.15);
+      });
+
+      // The problem scene gets a red cast; the rest of the film stays lime/cyan.
+      tl.to('#problem-glow', { opacity: 0.62, duration: 0.9, ease: 'sine.out' }, 4.05);
+      tl.to('#problem-glow', { opacity: 0, duration: 0.8, ease: 'sine.in' }, 8.3);
+
+      // Close on black after the final lockup.
+      tl.to('#end-fade', { opacity: 1, duration: 0.55, ease: 'power2.in' }, 31.35);
+
+      window.__timelines['xonus-promo'] = tl;
+    </script>
+  </body>
+</html>

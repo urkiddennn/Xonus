@@ -1,0 +1,560 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    <template>
+      <style>
+        #scene-03-early-stop {
+          position: absolute;
+          inset: 0;
+          width: 100%;
+          height: 100%;
+          overflow: hidden;
+        }
+
+        .s3-stage {
+          position: absolute;
+          inset: 0;
+        }
+
+        .s3-ghost {
+          position: absolute;
+          right: -40px;
+          bottom: -180px;
+          font-family: var(--font-display);
+          font-size: 410px;
+          font-weight: 700;
+          letter-spacing: -0.08em;
+          line-height: 0.74;
+          color: rgba(255, 255, 255, 0.024);
+          white-space: nowrap;
+          text-transform: uppercase;
+        }
+
+        .s3-kicker {
+          position: absolute;
+          left: 140px;
+          top: 126px;
+        }
+
+        .s3-headline {
+          position: absolute;
+          left: 140px;
+          top: 204px;
+          width: 1620px;
+          font-size: 84px;
+        }
+
+        .s3-subcopy {
+          position: absolute;
+          left: 140px;
+          top: 430px;
+          width: 1340px;
+          font-size: 26px;
+        }
+
+        .s3-panel {
+          left: 140px;
+          top: 520px;
+          width: 1640px;
+          height: 452px;
+          border-radius: 22px;
+        }
+
+        .s3-panel .panel-head {
+          height: 60px;
+          padding: 0 24px;
+        }
+
+        .s3-live {
+          display: inline-flex;
+          align-items: center;
+          gap: 9px;
+        }
+
+        .s3-live-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: var(--accent);
+          box-shadow: 0 0 8px rgba(184, 255, 92, 0.8);
+        }
+
+        .s3-tau-chip {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 5px 10px;
+          border: 1px solid rgba(184, 255, 92, 0.28);
+          border-radius: 999px;
+          background: rgba(184, 255, 92, 0.07);
+          color: var(--accent);
+          font-family: var(--font-mono);
+          font-size: 11px;
+          letter-spacing: 0.08em;
+        }
+
+        .s3-odds-readout {
+          display: flex;
+          align-items: baseline;
+          gap: 10px;
+        }
+
+        .s3-odds-label {
+          color: var(--muted);
+          font-family: var(--font-mono);
+          font-size: 10px;
+          letter-spacing: 0.14em;
+          text-transform: uppercase;
+        }
+
+        .s3-odds-value {
+          min-width: 92px;
+          color: var(--accent);
+          font-family: var(--font-mono);
+          font-size: 26px;
+          font-variant-numeric: tabular-nums;
+          text-align: right;
+        }
+
+        .s3-chart {
+          position: relative;
+          height: 320px;
+          overflow: hidden;
+          background:
+            radial-gradient(640px 280px at 92% 20%, rgba(184, 255, 92, 0.06), transparent 68%),
+            #070b11;
+        }
+
+        .s3-chart svg {
+          position: absolute;
+          left: 70px;
+          top: 0;
+          width: 1500px;
+          height: 320px;
+          overflow: visible;
+        }
+
+        .s3-grid-line {
+          stroke: rgba(255, 255, 255, 0.055);
+          stroke-width: 1;
+        }
+
+        .s3-axis-label {
+          fill: #8e9aab;
+          font-family: var(--font-mono);
+          font-size: 11px;
+          letter-spacing: 0.1em;
+        }
+
+        .s3-axis-label.accent {
+          fill: #b8ff5c;
+        }
+
+        .s3-tau-line {
+          stroke: rgba(184, 255, 92, 0.6);
+          stroke-width: 1.5;
+          stroke-dasharray: 5 8;
+        }
+
+        .s3-curve {
+          filter: drop-shadow(0 0 9px rgba(184, 255, 92, 0.4));
+        }
+
+        .s3-ghost-curve {
+          stroke: rgba(255, 255, 255, 0.24);
+          stroke-width: 3;
+          stroke-dasharray: 7 10;
+        }
+
+        .s3-abort-line {
+          stroke: rgba(184, 255, 92, 0.45);
+          stroke-width: 1.5;
+        }
+
+        .s3-stop-ring,
+        .s3-stop-halo {
+          fill: none;
+          stroke: #b8ff5c;
+        }
+
+        .s3-stop-ring {
+          stroke-width: 3;
+        }
+
+        .s3-stop-halo {
+          stroke-width: 2;
+          opacity: 0.45;
+        }
+
+        .s3-stop-core {
+          fill: #b8ff5c;
+        }
+
+        .s3-abort-chip {
+          position: absolute;
+          left: 1010px;
+          top: 30px;
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 7px 11px;
+          border: 1px solid rgba(184, 255, 92, 0.34);
+          border-radius: 7px;
+          background: rgba(7, 11, 17, 0.9);
+          color: var(--accent);
+          font-family: var(--font-mono);
+          font-size: 11px;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+        }
+
+        .s3-abort-chip i {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: var(--danger);
+          box-shadow: 0 0 8px rgba(255, 133, 133, 0.8);
+        }
+
+        .s3-ghost-label {
+          position: absolute;
+          left: 1120px;
+          top: 52px;
+          color: #8e9aab;
+          font-family: var(--font-mono);
+          font-size: 11px;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+        }
+
+        .s3-foot {
+          position: absolute;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          height: 72px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 24px;
+          padding: 0 24px;
+          border-top: 1px solid var(--border);
+          background: rgba(255, 255, 255, 0.014);
+        }
+
+        .s3-passes {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          color: var(--muted);
+          font-family: var(--font-mono);
+          font-size: 10px;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+        }
+
+        .s3-pass {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+        }
+
+        .s3-pass i {
+          width: 5px;
+          height: 5px;
+          border-radius: 50%;
+          background: #3d4a5c;
+        }
+
+        .s3-foot-note {
+          color: var(--muted);
+          font-family: var(--font-mono);
+          font-size: 10px;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+        }
+
+        .s3-foot-note b {
+          color: var(--accent);
+          font-weight: 500;
+        }
+
+        .s3-result {
+          position: absolute;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          height: 72px;
+          display: flex;
+          align-items: center;
+          gap: 22px;
+          padding: 0 24px;
+          border-top: 1px solid rgba(184, 255, 92, 0.32);
+          background:
+            linear-gradient(90deg, rgba(184, 255, 92, 0.15), rgba(92, 225, 230, 0.045) 62%, transparent),
+            #0a1014;
+          transform: translateY(100%);
+        }
+
+        .s3-result-label {
+          color: var(--accent);
+          font-family: var(--font-mono);
+          font-size: 10px;
+          letter-spacing: 0.14em;
+          text-transform: uppercase;
+        }
+
+        .s3-result-decision {
+          color: var(--text);
+          font-family: var(--font-display);
+          font-size: 25px;
+          font-weight: 600;
+          letter-spacing: -0.02em;
+        }
+
+        .s3-result-divider {
+          width: 1px;
+          height: 22px;
+          background: var(--border-strong);
+        }
+
+        .s3-result-metric {
+          display: flex;
+          align-items: baseline;
+          gap: 7px;
+          color: var(--muted);
+          font-family: var(--font-mono);
+          font-size: 10px;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+        }
+
+        .s3-result-metric b {
+          color: var(--text-soft);
+          font-size: 16px;
+          font-weight: 500;
+          letter-spacing: 0;
+        }
+
+        .s3-result-spacer {
+          flex: 1;
+        }
+
+        .s3-result-check {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          color: var(--accent);
+          font-family: var(--font-mono);
+          font-size: 11px;
+          letter-spacing: 0.08em;
+        }
+
+        .s3-result-check i {
+          display: grid;
+          place-items: center;
+          width: 18px;
+          height: 18px;
+          border: 1px solid rgba(184, 255, 92, 0.45);
+          border-radius: 50%;
+          font-size: 11px;
+          font-style: normal;
+        }
+      </style>
+
+      <div data-hf-id="hf-1o0n" id="scene-03-early-stop" data-composition-id="scene-03-early-stop" data-width="1920" data-height="1080">
+        <div data-hf-id="hf-01w3" class="s3-stage">
+          <div data-hf-id="hf-dzm9" class="s3-ghost" data-layout-ignore data-layout-allow-overflow data-layout-allow-occlusion>Early stop</div>
+          <p data-hf-id="hf-hgrq" class="kicker s3-kicker">03 / The mechanism — log-odds early stop</p>
+
+          <h2 data-hf-id="hf-hk24" class="headline s3-headline">
+            <span data-hf-id="hf-dx7h" class="line">Stop the instant</span>
+            <span data-hf-id="hf-tkqw" class="line">the answer is <span data-hf-id="hf-a1qt" class="accent">decisive.</span></span>
+          </h2>
+
+          <p data-hf-id="hf-6w4v" class="subcopy s3-subcopy">
+            Xonus reads token-level log-odds and aborts the stream the moment the top option clears tau.
+            No reasoning tokens. No wasted output.
+          </p>
+
+          <div data-hf-id="hf-ax0g" class="panel s3-panel" id="s3-panel">
+            <div data-hf-id="hf-95fx" class="panel-head">
+              <div data-hf-id="hf-4p17" class="panel-title s3-live"><i data-hf-id="hf-b4xr" class="s3-live-dot"></i>Log-odds / pass stream</div>
+              <span data-hf-id="hf-v5zr" class="s3-tau-chip">TAU 6.0 — ACCEPT</span>
+              <div data-hf-id="hf-vfiq" class="s3-odds-readout">
+                <span data-hf-id="hf-sw5o" class="s3-odds-label">Cumulative</span>
+                <span data-hf-id="hf-uhrn" class="s3-odds-value" id="s3-odds">0.80</span>
+              </div>
+            </div>
+
+            <div data-hf-id="hf-a5ph" class="s3-chart">
+              <svg data-hf-id="hf-ncin" viewBox="0 0 1500 320" fill="none" aria-hidden="true">
+                <defs data-hf-id="hf-mh0t">
+                  <linearGradient data-hf-id="hf-g4tv" id="s3-curve-grad" x1="120" y1="260" x2="1030" y2="90" gradientUnits="userSpaceOnUse">
+                    <stop data-hf-id="hf-t7vz" stop-color="#5CE1E6" />
+                    <stop data-hf-id="hf-otu8" offset="0.62" stop-color="#B8FF5C" />
+                    <stop data-hf-id="hf-f5ft" offset="1" stop-color="#B8FF5C" />
+                  </linearGradient>
+                </defs>
+
+                <g data-hf-id="hf-iq4u" id="s3-grid">
+                  <line data-hf-id="hf-qeg2" class="s3-grid-line" x1="70" y1="286" x2="1430" y2="286" />
+                  <line data-hf-id="hf-3v0c" class="s3-grid-line" x1="70" y1="223" x2="1430" y2="223" />
+                  <line data-hf-id="hf-vos4" class="s3-grid-line" x1="70" y1="160" x2="1430" y2="160" />
+                  <line data-hf-id="hf-hcki" class="s3-grid-line" x1="70" y1="97" x2="1430" y2="97" />
+                  <line data-hf-id="hf-vy5u" class="s3-grid-line" x1="70" y1="34" x2="1430" y2="34" />
+                  <line data-hf-id="hf-1jpk" class="s3-grid-line" x1="120" y1="26" x2="120" y2="292" opacity="0.6" />
+                  <line data-hf-id="hf-rmda" class="s3-grid-line" x1="420" y1="26" x2="420" y2="292" opacity="0.6" />
+                  <line data-hf-id="hf-kvuc" class="s3-grid-line" x1="720" y1="26" x2="720" y2="292" opacity="0.6" />
+                  <line data-hf-id="hf-9cwo" class="s3-grid-line" x1="1020" y1="26" x2="1020" y2="292" opacity="0.6" />
+                  <line data-hf-id="hf-528o" class="s3-grid-line" x1="1320" y1="26" x2="1320" y2="292" opacity="0.6" />
+                </g>
+
+                <text data-hf-id="hf-3c6r" class="s3-axis-label" x="46" y="290">0</text>
+                <text data-hf-id="hf-aoq7" class="s3-axis-label" x="46" y="227">2</text>
+                <text data-hf-id="hf-u8cp" class="s3-axis-label" x="46" y="164">4</text>
+                <text data-hf-id="hf-jbqu" class="s3-axis-label accent" x="46" y="101">6</text>
+                <text data-hf-id="hf-q6tr" class="s3-axis-label" x="46" y="38">8</text>
+
+                <text data-hf-id="hf-jum5" class="s3-axis-label" x="104" y="314">PASS 1</text>
+                <text data-hf-id="hf-if2h" class="s3-axis-label" x="404" y="314">PASS 2</text>
+                <text data-hf-id="hf-nb5p" class="s3-axis-label" x="704" y="314">PASS 3</text>
+                <text data-hf-id="hf-a4as" class="s3-axis-label" x="1004" y="314">PASS 4</text>
+                <text data-hf-id="hf-tk60" class="s3-axis-label" x="1304" y="314">PASS 5</text>
+
+                <line data-hf-id="hf-gnoq"
+                  id="s3-tau-line"
+                  class="s3-tau-line"
+                  x1="70"
+                  y1="97"
+                  x2="1430"
+                  y2="97"
+                  opacity="0"
+                />
+                <text data-hf-id="hf-1i35" class="s3-axis-label accent" x="1348" y="90">TAU 6.0</text>
+
+                <path data-hf-id="hf-pb4s"
+                  id="s3-ghost-curve"
+                  class="s3-ghost-curve"
+                  d="M 1020 90 C 1110 82, 1215 80, 1320 81"
+                  opacity="0"
+                />
+
+                <path data-hf-id="hf-q0d7"
+                  id="s3-curve"
+                  class="s3-curve"
+                  d="M 120 261 C 220 250, 320 225, 420 204 C 520 183, 620 165, 720 151 C 830 136, 930 108, 1020 90"
+                  pathLength="1"
+                  stroke="url(#s3-curve-grad)"
+                  stroke-width="6"
+                  stroke-linecap="round"
+                  stroke-dasharray="1"
+                  stroke-dashoffset="1"
+                />
+
+                <line data-hf-id="hf-nei1"
+                  id="s3-abort-line"
+                  class="s3-abort-line"
+                  x1="986"
+                  y1="28"
+                  x2="986"
+                  y2="292"
+                  pathLength="1"
+                  stroke-dasharray="1"
+                  stroke-dashoffset="1"
+                />
+
+                <circle data-hf-id="hf-4j9i" id="s3-stop-halo" class="s3-stop-halo" cx="986" cy="97" r="20" opacity="0" />
+                <circle data-hf-id="hf-wnxc" id="s3-stop-ring" class="s3-stop-ring" cx="986" cy="97" r="13" opacity="0" />
+                <circle data-hf-id="hf-vj4e" id="s3-stop-core" class="s3-stop-core" cx="986" cy="97" r="4" opacity="0" />
+              </svg>
+
+              <div data-hf-id="hf-9hz5" class="s3-abort-chip" id="s3-abort-chip"><i data-hf-id="hf-wt6k"></i>Stream aborted</div>
+              <div data-hf-id="hf-vgbv" class="s3-ghost-label" id="s3-ghost-label">Tokens never generated</div>
+            </div>
+
+            <div data-hf-id="hf-lt4g" class="s3-foot" id="s3-foot" data-layout-allow-overlap data-layout-allow-occlusion>
+              <div data-hf-id="hf-zg5s" class="s3-passes">
+                <span data-hf-id="hf-m0s4">Pass</span>
+                <span data-hf-id="hf-zvtk" class="s3-pass"><i data-hf-id="hf-c1mh" id="s3-pass-1"></i>01</span>
+                <span data-hf-id="hf-yowh" class="s3-pass"><i data-hf-id="hf-i7ca" id="s3-pass-2"></i>02</span>
+                <span data-hf-id="hf-z37i" class="s3-pass"><i data-hf-id="hf-m5gb" id="s3-pass-3"></i>03</span>
+                <span data-hf-id="hf-xwaf" class="s3-pass"><i data-hf-id="hf-ynys" id="s3-pass-4"></i>04</span>
+              </div>
+              <span data-hf-id="hf-dlil" class="s3-foot-note">Abort on <b data-hf-id="hf-olmx">tau</b> · temperature 0</span>
+            </div>
+
+            <div data-hf-id="hf-nhca" class="s3-result" id="s3-result" data-layout-allow-overlap data-layout-allow-occlusion>
+              <span data-hf-id="hf-113e" class="s3-result-label">Decision locked</span>
+              <span data-hf-id="hf-gfpd" class="s3-result-decision">Billing</span>
+              <span data-hf-id="hf-box3" class="s3-result-divider"></span>
+              <span data-hf-id="hf-vjjk" class="s3-result-metric">Confidence <b data-hf-id="hf-7jev">0.998</b></span>
+              <span data-hf-id="hf-pvi5" class="s3-result-metric">Passes <b data-hf-id="hf-t4n0">1</b></span>
+              <span data-hf-id="hf-i7x6" class="s3-result-metric">Latency <b data-hf-id="hf-faj8">184 ms</b></span>
+              <span data-hf-id="hf-xi1s" class="s3-result-spacer"></span>
+              <span data-hf-id="hf-zj4e" class="s3-result-check"><i data-hf-id="hf-q7i5">✓</i>tau cleared</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        const tl = gsap.timeline({ paused: true });
+
+        tl.fromTo('#s3-stage', { opacity: 0 }, { opacity: 1, duration: 0.3, ease: 'power1.out' }, 0);
+        tl.fromTo('.s3-headline .line', { y: 34, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: 'power3.out', stagger: 0.08 }, 0.12);
+        tl.fromTo('.s3-subcopy', { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: 'power2.out' }, 0.48);
+        tl.fromTo('#s3-panel', { y: 46, opacity: 0 }, { y: 0, opacity: 1, duration: 0.85, ease: 'expo.out' }, 0.22);
+        tl.fromTo('#s3-grid', { opacity: 0 }, { opacity: 1, duration: 0.5, ease: 'power2.out' }, 0.5);
+        tl.fromTo('.s3-axis-label', { opacity: 0 }, { opacity: 1, duration: 0.45, ease: 'power2.out', stagger: 0.02 }, 0.55);
+        tl.fromTo('.s3-tau-chip', { scale: 0.9, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.45, ease: 'back.out(1.5)' }, 0.65);
+        tl.fromTo('#s3-foot', { opacity: 0 }, { opacity: 1, duration: 0.4, ease: 'power2.out' }, 0.7);
+
+        // The tau reference appears first, then the cumulative log-odds curve climbs into it.
+        tl.fromTo('#s3-tau-line', { opacity: 0 }, { opacity: 1, duration: 0.55, ease: 'power2.inOut' }, 0.65);
+        tl.fromTo('#s3-curve', { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 2.45, ease: 'power2.inOut' }, 0.85);
+
+        const s3 = { odds: 0.8 };
+        tl.to(
+          s3,
+          {
+            odds: 6.21,
+            duration: 2.45,
+            ease: 'power2.inOut',
+            onUpdate: () => {
+              document.querySelector('#s3-odds').textContent = s3.odds.toFixed(2);
+            },
+          },
+          0.85
+        );
+
+        // Pass markers light up as each step of evidence lands.
+        tl.to('#s3-pass-1', { backgroundColor: '#5CE1E6', duration: 0.15, ease: 'power1.out' }, 0.95);
+        tl.to('#s3-pass-2', { backgroundColor: '#5CE1E6', duration: 0.15, ease: 'power1.out' }, 1.72);
+        tl.to('#s3-pass-3', { backgroundColor: '#B8FF5C', duration: 0.15, ease: 'power1.out' }, 2.55);
+        tl.to('#s3-pass-4', { backgroundColor: '#B8FF5C', duration: 0.15, ease: 'power1.out' }, 3.16);
+
+        // Crossing tau: the stream is cut, not completed.
+        tl.fromTo('#s3-stop-ring', { scale: 0.4, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.28, ease: 'back.out(2)' }, 3.15);
+        tl.fromTo('#s3-stop-core', { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.2, ease: 'power2.out' }, 3.2);
+        tl.fromTo('#s3-stop-halo', { scale: 0.5, opacity: 0 }, { scale: 2.1, opacity: 0, duration: 0.9, ease: 'power2.out' }, 3.2);
+        tl.fromTo('#s3-abort-line', { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 0.3, ease: 'power2.out' }, 3.18);
+        tl.to('#s3-tau-line', { opacity: 0.35, duration: 0.12, ease: 'power1.inOut', yoyo: true, repeat: 5 }, 3.05);
+        tl.fromTo('#s3-abort-chip', { y: -8, opacity: 0 }, { y: 0, opacity: 1, duration: 0.35, ease: 'power2.out' }, 3.28);
+        tl.fromTo('#s3-ghost-curve', { opacity: 0 }, { opacity: 0.55, duration: 0.4, ease: 'power2.out' }, 3.42);
+        tl.fromTo('#s3-ghost-label', { opacity: 0 }, { opacity: 1, duration: 0.4, ease: 'power2.out' }, 3.5);
+        tl.to('#s3-panel', { borderColor: 'rgba(184, 255, 92, 0.38)', duration: 0.35, ease: 'power1.out' }, 3.25);
+
+        tl.fromTo('#s3-result', { y: 72, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: 'power3.out' }, 3.9);
+
+        tl.to('#s3-stage', { opacity: 0, y: -18, filter: 'blur(6px)', duration: 0.45, ease: 'power2.in' }, 5.5);
+
+        window.__timelines['scene-03-early-stop'] = tl;
+      </script>
+    </template>
+  </body>
+</html>

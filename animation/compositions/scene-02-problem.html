@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    <template>
+      <style>
+        #scene-02-problem {
+          position: absolute;
+          inset: 0;
+          width: 100%;
+          height: 100%;
+          overflow: hidden;
+        }
+
+        .s2-stage {
+          position: absolute;
+          inset: 0;
+        }
+
+        .s2-ghost {
+          position: absolute;
+          right: -70px;
+          top: 92px;
+          font-family: var(--font-display);
+          font-size: 300px;
+          font-weight: 700;
+          letter-spacing: -0.07em;
+          line-height: 0.8;
+          color: rgba(255, 255, 255, 0.022);
+          white-space: nowrap;
+          text-transform: uppercase;
+        }
+
+        .s2-kicker {
+          position: absolute;
+          left: 140px;
+          top: 126px;
+        }
+
+        .s2-headline {
+          position: absolute;
+          left: 140px;
+          top: 208px;
+          width: 630px;
+          font-size: 76px;
+        }
+
+        .s2-subcopy {
+          position: absolute;
+          left: 140px;
+          top: 536px;
+          width: 570px;
+          font-size: 27px;
+        }
+
+        .s2-compare {
+          position: absolute;
+          left: 140px;
+          top: 710px;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 14px;
+        }
+
+        .s2-compare-row {
+          display: flex;
+          align-items: center;
+          gap: 18px;
+        }
+
+        .s2-compare-index {
+          width: 26px;
+          color: var(--muted);
+          font-family: var(--font-mono);
+          font-size: 11px;
+          letter-spacing: 0.08em;
+        }
+
+        .s2-compare-rule {
+          position: absolute;
+          left: 0;
+          bottom: -30px;
+          width: 590px;
+          height: 1px;
+          transform-origin: left center;
+          background: linear-gradient(90deg, rgba(255, 133, 133, 0.5), var(--border) 55%, transparent);
+        }
+
+        .s2-cost {
+          position: absolute;
+          left: 140px;
+          top: 900px;
+          color: var(--muted);
+          font-family: var(--font-mono);
+          font-size: 12px;
+          letter-spacing: 0.16em;
+          text-transform: uppercase;
+        }
+
+        .s2-panel {
+          left: 820px;
+          top: 168px;
+          width: 960px;
+          height: 792px;
+        }
+
+        .s2-panel .panel-head {
+          height: 66px;
+          padding: 0 22px;
+        }
+
+        .s2-answer-chip {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 6px 11px;
+          border: 1px solid rgba(184, 255, 92, 0.3);
+          border-radius: 999px;
+          background: rgba(184, 255, 92, 0.08);
+          color: var(--accent);
+          font-family: var(--font-mono);
+          font-size: 12px;
+          letter-spacing: 0.04em;
+        }
+
+        .s2-running {
+          display: inline-flex;
+          align-items: center;
+          gap: 7px;
+          color: var(--danger);
+          font-family: var(--font-mono);
+          font-size: 11px;
+          letter-spacing: 0.1em;
+        }
+
+        .s2-running-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: var(--danger);
+          box-shadow: 0 0 8px rgba(255, 133, 133, 0.7);
+        }
+
+        .s2-stream {
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: 66px;
+          height: 650px;
+          overflow: hidden;
+          background:
+            radial-gradient(620px 250px at 100% 0%, rgba(255, 133, 133, 0.055), transparent 70%),
+            #070b11;
+        }
+
+        .s2-stream::before,
+        .s2-stream::after {
+          content: '';
+          position: absolute;
+          left: 0;
+          right: 0;
+          z-index: 2;
+          height: 92px;
+          pointer-events: none;
+        }
+
+        .s2-stream::before {
+          top: 0;
+          background: linear-gradient(180deg, #070b11, transparent);
+        }
+
+        .s2-stream::after {
+          bottom: 0;
+          background: linear-gradient(0deg, #070b11, transparent);
+        }
+
+        .s2-track {
+          position: absolute;
+          left: 0;
+          top: 18px;
+          width: 100%;
+          padding: 0 20px;
+        }
+
+        .s2-line {
+          display: flex;
+          align-items: baseline;
+          gap: 18px;
+          height: 44px;
+          white-space: nowrap;
+        }
+
+        .s2-line-no {
+          width: 34px;
+          flex: none;
+          color: #3d4a5c;
+          font-family: var(--font-mono);
+          font-size: 11px;
+          text-align: right;
+        }
+
+        .s2-token {
+          color: #aeb9c9;
+          font-family: var(--font-mono);
+          font-size: 23px;
+          letter-spacing: -0.01em;
+        }
+
+        .s2-line.is-answer .s2-token {
+          color: var(--accent);
+        }
+
+        .s2-line.is-answer .s2-line-no {
+          color: var(--accent);
+        }
+
+        .s2-line.is-dim .s2-token {
+          color: #59677a;
+        }
+
+        .s2-line.is-waste .s2-token {
+          color: #7b6470;
+        }
+
+        .s2-foot {
+          position: absolute;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          height: 76px;
+          display: grid;
+          grid-template-columns: 1fr 1fr 130px;
+          gap: 20px;
+          align-items: center;
+          padding: 0 24px;
+          border-top: 1px solid var(--border);
+          background: rgba(255, 255, 255, 0.016);
+        }
+
+        .s2-counter {
+          display: flex;
+          align-items: baseline;
+          justify-content: space-between;
+          gap: 12px;
+          border-right: 1px solid var(--border);
+          padding-right: 20px;
+        }
+
+        .s2-counter:last-of-type {
+          border-right: 0;
+          padding-right: 0;
+        }
+
+        .s2-counter-label {
+          color: var(--muted);
+          font-family: var(--font-mono);
+          font-size: 10px;
+          letter-spacing: 0.14em;
+          text-transform: uppercase;
+        }
+
+        .s2-counter-value {
+          color: var(--text-soft);
+          font-family: var(--font-mono);
+          font-size: 22px;
+          font-variant-numeric: tabular-nums;
+        }
+
+        .s2-spark {
+          display: flex;
+          align-items: flex-end;
+          justify-content: flex-end;
+          gap: 4px;
+          height: 34px;
+        }
+
+        .s2-spark i {
+          display: block;
+          width: 5px;
+          border-radius: 2px;
+          background: var(--danger);
+          opacity: 0.65;
+        }
+      </style>
+
+      <div data-hf-id="hf-hl49" id="scene-02-problem" data-composition-id="scene-02-problem" data-width="1920" data-height="1080">
+        <div data-hf-id="hf-rfk6" class="s2-stage">
+          <div data-hf-id="hf-yvef" class="s2-ghost" data-layout-ignore data-layout-allow-overflow data-layout-allow-occlusion>Tokens</div>
+          <p data-hf-id="hf-2ahj" class="kicker s2-kicker">02 / The problem — wasted certainty</p>
+
+          <h2 data-hf-id="hf-f0ef" class="headline s2-headline">
+            <span data-hf-id="hf-em92" class="line">Most models</span>
+            <span data-hf-id="hf-yy30" class="line">keep talking</span>
+            <span data-hf-id="hf-9ni1" class="line">after they're <span data-hf-id="hf-qyd9" class="danger">sure.</span></span>
+          </h2>
+
+          <p data-hf-id="hf-d0a9" class="subcopy s2-subcopy">
+            Every extra token is latency, cost, and noise.
+            The answer was already on the first line.
+          </p>
+
+          <div data-hf-id="hf-snhl" class="s2-compare">
+            <div data-hf-id="hf-j22a" class="s2-compare-row">
+              <span data-hf-id="hf-v0gu" class="s2-compare-index">A</span>
+              <span data-hf-id="hf-72bl" class="chip accent"><i data-hf-id="hf-wu7o" class="chip-dot"></i>Settled at token 3</span>
+            </div>
+            <div data-hf-id="hf-ak8m" class="s2-compare-row">
+              <span data-hf-id="hf-verv" class="s2-compare-index">B</span>
+              <span data-hf-id="hf-yska" class="chip danger"><i data-hf-id="hf-n30s" class="chip-dot"></i>Billed for 1,284</span>
+            </div>
+            <div data-hf-id="hf-as0q" class="s2-compare-rule" id="s2-compare-rule"></div>
+          </div>
+
+          <div data-hf-id="hf-52c3" class="s2-cost">The cost of not stopping</div>
+
+          <div data-hf-id="hf-nnow" class="panel s2-panel" id="s2-panel">
+            <div data-hf-id="hf-95fx" class="panel-head">
+              <div data-hf-id="hf-p5as" class="panel-title">
+                <span data-hf-id="hf-tgpa" class="panel-dots"><i data-hf-id="hf-ek3s" class="panel-dot"></i><i data-hf-id="hf-j8ao" class="panel-dot"></i><i data-hf-id="hf-i1dl" class="panel-dot"></i></span>
+                completion / stream
+              </div>
+              <span data-hf-id="hf-r0bz" class="s2-answer-chip"><i data-hf-id="hf-lw3p" class="chip-dot"></i>answer: Billing</span>
+              <span data-hf-id="hf-x6xv" class="s2-running"><i data-hf-id="hf-225z" class="s2-running-dot"></i>Running</span>
+            </div>
+
+            <div data-hf-id="hf-ruus" class="s2-stream" data-layout-ignore data-layout-allow-overflow data-layout-allow-occlusion>
+              <div data-hf-id="hf-uk1y" class="s2-track" id="s2-track">
+                <div data-hf-id="hf-dqox" class="s2-line is-answer"><span data-hf-id="hf-ij1u" class="s2-line-no">001</span><span data-hf-id="hf-ses0" class="s2-token">Billing is the right team for this</span></div>
+                <div data-hf-id="hf-q8gi" class="s2-line"><span data-hf-id="hf-ixcv" class="s2-line-no">002</span><span data-hf-id="hf-sqf2" class="s2-token">ticket because the customer was</span></div>
+                <div data-hf-id="hf-qw0m" class="s2-line"><span data-hf-id="hf-jbnw" class="s2-line-no">003</span><span data-hf-id="hf-cqdz" class="s2-token">charged twice and the invoice</span></div>
+                <div data-hf-id="hf-rabn" class="s2-line"><span data-hf-id="hf-jpyx" class="s2-line-no">004</span><span data-hf-id="hf-7ig0" class="s2-token">needs review by billing before</span></div>
+                <div data-hf-id="hf-romo" class="s2-line"><span data-hf-id="hf-k49y" class="s2-line-no">005</span><span data-hf-id="hf-4a7d" class="s2-token">the next cycle so please route</span></div>
+                <div data-hf-id="hf-krmv" class="s2-line is-dim"><span data-hf-id="hf-kikz" class="s2-line-no">006</span><span data-hf-id="hf-luvx" class="s2-token">this ticket to billing and close</span></div>
+                <div data-hf-id="hf-owhh" class="s2-line"><span data-hf-id="hf-kww0" class="s2-line-no">007</span><span data-hf-id="hf-ur46" class="s2-token">the loop after confirming the</span></div>
+                <div data-hf-id="hf-et8z" class="s2-line is-waste"><span data-hf-id="hf-eyal" class="s2-line-no">008</span><span data-hf-id="hf-0bgr" class="s2-token">charge identifier matches the</span></div>
+                <div data-hf-id="hf-pasi" class="s2-line"><span data-hf-id="hf-fclm" class="s2-line-no">009</span><span data-hf-id="hf-u42c" class="s2-token">customer record and the plan</span></div>
+                <div data-hf-id="hf-xshz" class="s2-line is-dim"><span data-hf-id="hf-hd30" class="s2-line-no">010</span><span data-hf-id="hf-2fjc" class="s2-token">attached to the account so the</span></div>
+                <div data-hf-id="hf-pp3j" class="s2-line"><span data-hf-id="hf-gyrz" class="s2-line-no">011</span><span data-hf-id="hf-80zy" class="s2-token">billing team can issue a refund</span></div>
+                <div data-hf-id="hf-1b03" class="s2-line is-waste"><span data-hf-id="hf-gkgy" class="s2-line-no">012</span><span data-hf-id="hf-hv5b" class="s2-token">or a credit and document why</span></div>
+                <div data-hf-id="hf-q3ek" class="s2-line"><span data-hf-id="hf-g65x" class="s2-line-no">013</span><span data-hf-id="hf-7vg1" class="s2-token">the duplicate charge happened</span></div>
+                <div data-hf-id="hf-xe6y" class="s2-line is-dim"><span data-hf-id="hf-iyb4" class="s2-line-no">014</span><span data-hf-id="hf-skra" class="s2-token">in the first place and confirm</span></div>
+                <div data-hf-id="hf-nb9d" class="s2-line"><span data-hf-id="hf-ik03" class="s2-line-no">015</span><span data-hf-id="hf-9dvy" class="s2-token">the customer was not impacted</span></div>
+                <div data-hf-id="hf-0wp2" class="s2-line is-waste"><span data-hf-id="hf-i5p2" class="s2-line-no">016</span><span data-hf-id="hf-uysp" class="s2-token">by any downstream invoice or</span></div>
+                <div data-hf-id="hf-npke" class="s2-line"><span data-hf-id="hf-hre1" class="s2-line-no">017</span><span data-hf-id="hf-wpvg" class="s2-token">renewal that may have already</span></div>
+                <div data-hf-id="hf-wzvx" class="s2-line is-dim"><span data-hf-id="hf-e6ms" class="s2-line-no">018</span><span data-hf-id="hf-mqb4" class="s2-token">been scheduled for the account</span></div>
+                <div data-hf-id="hf-6xxu" class="s2-line"><span data-hf-id="hf-dsbr" class="s2-line-no">019</span><span data-hf-id="hf-uue3" class="s2-token">and note this in the ticket so</span></div>
+                <div data-hf-id="hf-0ie1" class="s2-line is-waste"><span data-hf-id="hf-4suv" class="s2-line-no">020</span><span data-hf-id="hf-gzff" class="s2-token">the next agent has the context</span></div>
+                <div data-hf-id="hf-6jmt" class="s2-line"><span data-hf-id="hf-575w" class="s2-line-no">021</span><span data-hf-id="hf-fy2r" class="s2-token">they need without asking again</span></div>
+                <div data-hf-id="hf-zs14" class="s2-line is-dim"><span data-hf-id="hf-408t" class="s2-line-no">022</span><span data-hf-id="hf-s57p" class="s2-token">and keep the response complete</span></div>
+                <div data-hf-id="hf-7qjw" class="s2-line"><span data-hf-id="hf-4eju" class="s2-line-no">023</span><span data-hf-id="hf-eng9" class="s2-token">for the customer and the team</span></div>
+              </div>
+            </div>
+
+            <div data-hf-id="hf-wsbs" class="s2-foot">
+              <div data-hf-id="hf-b1zc" class="s2-counter">
+                <span data-hf-id="hf-n8rp" class="s2-counter-label">Output tokens</span>
+                <span data-hf-id="hf-ikyn" class="s2-counter-value" id="s2-tokens">84</span>
+              </div>
+              <div data-hf-id="hf-n8sg" class="s2-counter">
+                <span data-hf-id="hf-acqy" class="s2-counter-label">Latency</span>
+                <span data-hf-id="hf-6c0g" class="s2-counter-value" id="s2-latency">184 ms</span>
+              </div>
+              <div data-hf-id="hf-wkda" class="s2-spark" id="s2-spark">
+                <i data-hf-id="hf-9ov2" style="height: 8px"></i><i data-hf-id="hf-bbw7" style="height: 12px"></i><i data-hf-id="hf-deqt" style="height: 10px"></i><i data-hf-id="hf-wn99" style="height: 18px"></i>
+                <i data-hf-id="hf-3po0" style="height: 15px"></i><i data-hf-id="hf-a3zs" style="height: 24px"></i><i data-hf-id="hf-a5hi" style="height: 22px"></i><i data-hf-id="hf-6h73" style="height: 30px"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        const tl = gsap.timeline({ paused: true });
+
+        tl.fromTo('#s2-stage', { opacity: 0 }, { opacity: 1, duration: 0.32, ease: 'power1.out' }, 0);
+        tl.fromTo('.s2-headline .line', { y: 38, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: 'power3.out', stagger: 0.08 }, 0.14);
+        tl.fromTo('.s2-subcopy', { y: 22, opacity: 0 }, { y: 0, opacity: 1, duration: 0.65, ease: 'power2.out' }, 0.58);
+        tl.fromTo('.s2-panel', { x: 84, opacity: 0 }, { x: 0, opacity: 1, duration: 0.9, ease: 'expo.out' }, 0.2);
+        tl.fromTo('.s2-answer-chip', { scale: 0.88, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.45, ease: 'back.out(1.6)' }, 0.75);
+        tl.fromTo('.s2-running', { opacity: 0 }, { opacity: 1, duration: 0.4, ease: 'power2.out' }, 0.85);
+        tl.fromTo('.s2-foot', { opacity: 0 }, { opacity: 1, duration: 0.5, ease: 'power2.out' }, 0.65);
+        tl.fromTo('.s2-spark i', { scaleY: 0, transformOrigin: 'bottom center' }, { scaleY: 1, duration: 0.4, ease: 'power2.out', stagger: 0.04 }, 0.9);
+
+        tl.fromTo('#s2-track', { y: 0 }, { y: -474, duration: 4.15, ease: 'none' }, 0.45);
+
+        const s2Counter = { tokens: 84, latency: 184 };
+        tl.to(
+          s2Counter,
+          {
+            tokens: 1284,
+            latency: 2940,
+            duration: 3.75,
+            ease: 'power1.inOut',
+            onUpdate: () => {
+              const tokens = Math.round(s2Counter.tokens).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+              const latency = Math.round(s2Counter.latency).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+              document.querySelector('#s2-tokens').textContent = tokens;
+              document.querySelector('#s2-latency').textContent = latency + ' ms';
+            },
+          },
+          0.5
+        );
+
+        tl.to('#s2-tokens', { color: '#ff8585', duration: 0.3, ease: 'power1.out' }, 3.5);
+        tl.to('#s2-latency', { color: '#ff8585', duration: 0.3, ease: 'power1.out' }, 3.5);
+        tl.to('#s2-panel', { borderColor: 'rgba(255, 133, 133, 0.34)', duration: 0.35, ease: 'power1.out' }, 3.55);
+
+        tl.fromTo('.s2-compare-row', { y: 18, opacity: 0 }, { y: 0, opacity: 1, duration: 0.55, ease: 'power3.out', stagger: 0.12 }, 3.35);
+        tl.fromTo('#s2-compare-rule', { scaleX: 0 }, { scaleX: 1, duration: 0.65, ease: 'power3.inOut' }, 3.5);
+        tl.fromTo('.s2-cost', { opacity: 0 }, { opacity: 1, duration: 0.4, ease: 'power2.out' }, 3.7);
+
+        tl.to('#s2-stage', { opacity: 0, x: -18, filter: 'blur(6px)', duration: 0.45, ease: 'power2.in' }, 4.5);
+
+        window.__timelines['scene-02-problem'] = tl;
+      </script>
+    </template>
+  </body>
+</html>

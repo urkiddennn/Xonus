@@ -126,7 +126,7 @@ export interface RetryOptions {
   baseDelayMs?: number;
 }
 
-/** Retry retryable Gemini failures with exponential backoff and jitter. */
+/** Retry retryable provider failures with exponential backoff and jitter. */
 export async function withRetry<T>(
   operation: () => Promise<T>,
   options: RetryOptions,
@@ -152,7 +152,7 @@ export function toApiError(error: unknown): XonusApiError {
   if (error instanceof XonusApiError) return error;
   const status = getErrorStatus(error);
   const message = error instanceof Error ? error.message : String(error);
-  return new XonusApiError(`Gemini request failed: ${message}`, {
+  return new XonusApiError(`Model request failed: ${message}`, {
     cause: error,
     ...(status !== undefined ? { status } : {}),
   });

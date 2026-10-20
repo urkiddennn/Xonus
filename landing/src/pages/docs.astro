@@ -1,14 +1,17 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import CodeBlock from '../components/CodeBlock.astro';
+import GitHubIcon from '../components/GitHubIcon.astro';
+import HeartIcon from '../components/HeartIcon.astro';
 import { snippets } from '../data/snippets';
+import { site } from '../data/site';
 
 const year = new Date().getFullYear();
 ---
 
 <Layout
   title="Xonus documentation — Decisions with evidence"
-  description="Xonus documentation: install, configure, and use the Gemini-native decision engine with log-odds early stopping and answer-mass gating."
+  description="Xonus documentation: install, configure, and use the model-agnostic decision engine with log-odds early stopping and answer-mass gating."
   docs
 >
 
@@ -21,7 +24,7 @@ const year = new Date().getFullYear();
             read the evidence behind every decision.
           </p>
           <div class="hero-meta">
-            <span>Gemini-native</span>
+            <span>Model-agnostic</span>
             <span>TypeScript · ESM + CJS</span>
             <span>MIT licensed</span>
           </div>
@@ -37,6 +40,7 @@ const year = new Date().getFullYear();
                 <li><a href="#overview" data-doc-link>Overview</a></li>
                 <li><a href="#installation" data-doc-link>Installation</a></li>
                 <li><a href="#quickstart" data-doc-link>Quickstart</a></li>
+                <li><a href="#providers" data-doc-link>Providers</a></li>
               </ul>
             </div>
             <div class="sidebar-group">
@@ -46,7 +50,7 @@ const year = new Date().getFullYear();
                 <li><a href="#configuration" data-doc-link>Configuration</a></li>
                 <li><a href="#tuning" data-doc-link>Tuning</a></li>
                 <li><a href="#examples" data-doc-link>Examples</a></li>
-                <li><a href="#models" data-doc-link>Models &amp; limits</a></li>
+                <li><a href="#models" data-doc-link>Models &amp; providers</a></li>
               </ul>
             </div>
             <div class="sidebar-group">
@@ -60,6 +64,8 @@ const year = new Date().getFullYear();
             <div class="sidebar-group">
               <h5>Project</h5>
               <ul>
+                <li><a href="#benchmark" data-doc-link>Benchmark</a></li>
+                <li><a href="#anyjev" data-doc-link>vs. AnyJev</a></li>
                 <li><a href="#publishing" data-doc-link>Publishing</a></li>
                 <li><a href="#faq" data-doc-link>FAQ</a></li>
                 <li><a href="#license" data-doc-link>License</a></li>
@@ -78,16 +84,18 @@ const year = new Date().getFullYear();
           <section class="doc-section" id="overview">
             <h2>Overview</h2>
             <p class="lead">
-              Xonus is a small, typed decision engine for Gemini. Give it a question and
-              a fixed set of options; it returns the chosen option, the full probability
-              distribution, and a <code>confident</code> flag you can safely branch on.
+              Xonus is a small, typed decision engine for any chat model. Give it a
+              question and a fixed set of options; it returns the chosen option, the
+              full probability distribution when logprobs are available, and a
+              <code>confident</code> flag you can safely branch on.
             </p>
             <p>
               Under the hood it reads token-level log probabilities, computes the
               log-odds margin between the top two options, and stops generating as soon
               as the answer is settled. Decisions that are not settled get one
               deliberation pass. A separate answer-mass gate checks that the model put
-              its probability on valid options.
+              its probability on valid options. Text-only models still work: Xonus reads
+              the answer text and reports zero confidence instead of inventing evidence.
             </p>
 
             <CodeBlock code={snippets.hello} lang="ts" file="hello.ts" />
@@ -116,9 +124,10 @@ const year = new Date().getFullYear();
               <span class="callout-icon">i</span>
               <div>
                 <p>
-                  Xonus is Gemini-native. It uses the
-                  <code>@google/genai</code> SDK and the <code>responseLogprobs</code>
-                  generation option. It is not a provider-agnostic router.
+                  Xonus is model-agnostic. Gemini is the default provider and has the
+                  tightest logprob integration; OpenAI-compatible APIs and Anthropic are
+                  built in, and a custom adapter is a two-method interface. Calibrated
+                  confidence requires a model that exposes token logprobs.
                 </p>
               </div>
             </div>
@@ -138,13 +147,12 @@ const year = new Date().getFullYear();
               <span class="pill"><strong>Browsers</strong> via your own proxy</span>
             </div>
 
-            <h3>API key</h3>
+            <h3>Credentials</h3>
             <p>
-              Create a key in
-              <a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer">
-                Google AI Studio</a
-              >. Xonus reads the key you pass explicitly, or one of these environment
-              variables when you use <code>Xonus.fromEnv()</code>:
+              Create a key with your provider — Google AI Studio for Gemini, the OpenAI
+              dashboard for OpenAI, or the Anthropic console. Xonus reads the key you
+              pass explicitly, or one of the matching environment variables when you use
+              <code>Xonus.fromEnv()</code>:
             </p>
 
             <CodeBlock code={snippets.envFile} lang="bash" file=".env" />
@@ -156,7 +164,7 @@ const year = new Date().getFullYear();
               <span class="callout-icon">!</span>
               <div>
                 <p>
-                  Never ship a Gemini API key to a browser. Keep Xonus on the server and
+                  Never ship a provider API key to a browser. Keep Xonus on the server and
                   expose a narrow endpoint that accepts the question and options.
                 </p>
               </div>
@@ -201,13 +209,131 @@ const year = new Date().getFullYear();
 
             <h3>Use the environment</h3>
             <p>
-              <code>Xonus.fromEnv()</code> resolves
-              <code>XONUS_API_KEY</code>, <code>GEMINI_API_KEY</code>, or
-              <code>GOOGLE_API_KEY</code>, in that order. Any config option can be
-              overridden inline.
+              <code>Xonus.fromEnv()</code> resolves <code>XONUS_PROVIDER</code>, then
+              <code>XONUS_API_KEY</code> or the matching provider key
+              (<code>GEMINI_API_KEY</code>, <code>OPENAI_API_KEY</code>,
+              <code>ANTHROPIC_API_KEY</code>). Any config option can be overridden
+              inline.
             </p>
 
             <CodeBlock code={snippets.fromEnv} lang="ts" />
+          </section>
+
+          <!-- =========================================================== Providers -->
+          <section class="doc-section" id="providers">
+            <h2>Providers</h2>
+            <p class="lead">
+              The decision protocol is provider-neutral. Pick a built-in adapter or pass
+              your own; the fast pass, deliberation pass, and quality gate stay the same.
+            </p>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Provider</th>
+                    <th>API</th>
+                    <th>Works with</th>
+                    <th>Logprobs</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>gemini</code> (default)</td>
+                    <td>Google Gen AI</td>
+                    <td>Gemini 2.5 Flash and compatible Gemini models</td>
+                    <td>Yes</td>
+                  </tr>
+                  <tr>
+                    <td><code>openai</code></td>
+                    <td>Chat Completions</td>
+                    <td>
+                      OpenAI, Azure OpenAI, OpenRouter, Groq, Together, DeepSeek,
+                      Mistral, xAI, Ollama, vLLM, LM Studio
+                    </td>
+                    <td>Yes*</td>
+                  </tr>
+                  <tr>
+                    <td><code>anthropic</code></td>
+                    <td>Messages</td>
+                    <td>Claude models</td>
+                    <td>Text fallback</td>
+                  </tr>
+                  <tr>
+                    <td>Custom</td>
+                    <td><code>XonusProvider</code></td>
+                    <td>Any model, SDK, or internal endpoint</td>
+                    <td>Depends</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p class="small muted">
+              * OpenAI-compatible servers differ: some return token logprobs, some do
+              not. Xonus automatically falls back to text evidence when logprobs are
+              absent.
+            </p>
+
+            <h3>Gemini</h3>
+            <p>
+              The default provider. It uses <code>@google/genai</code> and Gemini's
+              <code>responseLogprobs</code> generation option.
+            </p>
+            <CodeBlock code={snippets.providerGemini} lang="ts" />
+
+            <h3>OpenAI-compatible</h3>
+            <p>
+              Set <code>provider: 'openai'</code> for OpenAI and any API that mirrors its
+              Chat Completions shape. Set <code>baseURL</code> to the API root, including
+              the version segment. This covers hosted gateways and local servers.
+            </p>
+            <CodeBlock code={snippets.providerOpenAI} lang="ts" />
+
+            <h3>Local and self-hosted</h3>
+            <p>
+              A <code>baseURL</code> is enough for an unauthenticated local endpoint.
+              Disable logprobs for text-only models; the decision still resolves, with
+              zero confidence.
+            </p>
+            <CodeBlock code={snippets.providerLocal} lang="ts" />
+
+            <h3>Anthropic</h3>
+            <p>
+              Anthropic does not expose token log probabilities. Xonus reads the final
+              answer text and reports <code>confidence: 0</code>,
+              <code>answerMass: 0</code>, and <code>confident: false</code>. Supported,
+              but not calibrated.
+            </p>
+            <CodeBlock code={snippets.providerAnthropic} lang="ts" />
+
+            <h3>Custom provider</h3>
+            <p>
+              Implement <code>generate()</code> for the fast pass and
+              <code>stream()</code> for deliberation. A chunk is just text plus optional
+              logprob steps, so wrapping a new SDK takes a few lines.
+            </p>
+            <CodeBlock code={snippets.providerCustom} lang="ts" />
+
+            <h3>Environment detection</h3>
+            <p>
+              <code>Xonus.fromEnv()</code> reads <code>XONUS_PROVIDER</code> first, then
+              falls back to <code>XONUS_API_KEY</code> and the provider-specific keys.
+              <code>XONUS_MODEL</code> and <code>XONUS_BASE_URL</code> are also honored.
+            </p>
+            <CodeBlock code={snippets.fromEnv} lang="ts" />
+
+            <div class="callout">
+              <span class="callout-icon">i</span>
+              <div>
+                <p>
+                  Logprobs are an optimization, not a requirement. With logprobs, Xonus
+                  can measure the margin and the answer mass. Without them, it still
+                  returns a decision, but sets <code>confident: false</code> and keeps
+                  confidence at <code>0</code>.
+                </p>
+              </div>
+            </div>
           </section>
 
           <!-- ========================================================= How it works -->
@@ -220,8 +346,9 @@ const year = new Date().getFullYear();
 
             <h3>1. Fast pass</h3>
             <p>
-              Xonus maps the options to letters and asks Gemini for exactly one letter.
-              The request uses temperature <code>0</code>, a short token budget, and:
+              Xonus maps the options to letters and asks the model for exactly one
+              letter. The request uses temperature <code>0</code>, a short token budget,
+              and:
             </p>
 
             <CodeBlock code={snippets.fastConfig} lang="ts" />
@@ -342,17 +469,51 @@ const year = new Date().getFullYear();
                 </thead>
                 <tbody>
                   <tr>
-                    <td>apiKey</td>
-                    <td>—</td>
+                    <td>provider</td>
+                    <td><code>'gemini'</code></td>
                     <td>
-                      Google AI Studio key. Required unless a custom <code>client</code>
-                      is provided.
+                      <code>gemini</code>, <code>openai</code> (any OpenAI-compatible
+                      API), <code>anthropic</code>, or an <code>XonusProvider</code>
+                      object.
                     </td>
                   </tr>
                   <tr>
+                    <td>apiKey</td>
+                    <td>—</td>
+                    <td>
+                      Provider key. Required unless a Gemini <code>client</code>, a custom
+                      provider, or a local <code>baseURL</code> is supplied.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>baseURL</td>
+                    <td>Provider default</td>
+                    <td>
+                      API root for OpenAI-compatible and Anthropic providers, including
+                      <code>/v1</code>. Required for unauthenticated local servers.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>headers</td>
+                    <td>—</td>
+                    <td>Extra HTTP headers for OpenAI-compatible and Anthropic requests.</td>
+                  </tr>
+                  <tr>
                     <td>modelName</td>
-                    <td><code>gemini-2.5-flash</code></td>
-                    <td>Any Gemini model supporting <code>responseLogprobs</code>.</td>
+                    <td>Provider default</td>
+                    <td>
+                      <code>gemini-2.5-flash</code> for Gemini,
+                      <code>gpt-4o-mini</code> for OpenAI, and
+                      <code>claude-3-5-haiku-latest</code> for Anthropic.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>logprobs</td>
+                    <td><code>true</code></td>
+                    <td>
+                      Request token logprobs when supported. Set <code>false</code> for
+                      text-only models.
+                    </td>
                   </tr>
                   <tr>
                     <td>tau</td>
@@ -412,16 +573,30 @@ const year = new Date().getFullYear();
                     <td>generationConfig</td>
                     <td>—</td>
                     <td>
-                      Extra Gemini generation config. Xonus forces logprobs, temperature,
-                      and candidate count; response schemas are ignored.
+                      Extra Gemini generation config (Gemini only). Xonus forces
+                      logprobs, temperature, and candidate count; response schemas are
+                      ignored.
                     </td>
+                  </tr>
+                  <tr>
+                    <td>providerOptions</td>
+                    <td>—</td>
+                    <td>
+                      Extra vendor fields merged into OpenAI-compatible or Anthropic
+                      request bodies.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>fetch</td>
+                    <td>global <code>fetch</code></td>
+                    <td>Custom HTTP implementation for proxies, tests, or non-standard runtimes.</td>
                   </tr>
                   <tr>
                     <td>client</td>
                     <td>—</td>
                     <td>
-                      A pre-built <code>GoogleGenAI</code> instance for custom auth,
-                      proxies, or tests.
+                      A pre-built <code>GoogleGenAI</code> instance (Gemini only) for
+                      custom auth, proxies, or tests.
                     </td>
                   </tr>
                 </tbody>
@@ -568,12 +743,17 @@ const year = new Date().getFullYear();
                   <tr>
                     <td>passes</td>
                     <td><code>1 | 2</code></td>
-                    <td>Number of Gemini passes used.</td>
+                    <td>Number of model passes used.</td>
                   </tr>
                   <tr>
                     <td>source</td>
                     <td><code>'fast' | 'deliberate' | 'text'</code></td>
                     <td>Where the final evidence came from.</td>
+                  </tr>
+                  <tr>
+                    <td>provider</td>
+                    <td><code>string</code></td>
+                    <td>Provider identifier, such as <code>gemini</code> or <code>openai</code>.</td>
                   </tr>
                   <tr>
                     <td>model</td>
@@ -700,7 +880,7 @@ const year = new Date().getFullYear();
                   <tr>
                     <td>XonusApiError</td>
                     <td><code>XONUS_API</code></td>
-                    <td>Gemini or network failure. Includes <code>status</code> when known.</td>
+                    <td>Provider or network failure. Includes <code>status</code> when known.</td>
                   </tr>
                   <tr>
                     <td>XonusParseError</td>
@@ -773,7 +953,7 @@ const year = new Date().getFullYear();
                     <td>Some decisions time out and need a fallback.</td>
                   </tr>
                   <tr>
-                    <td>Harder reasoning</td>
+                    <td>Harder reasoning (Gemini)</td>
                     <td><code>thinkingBudget: 256</code>, <code>maxOutputTokens: 1024</code></td>
                     <td>Higher cost and latency on escalated decisions.</td>
                   </tr>
@@ -842,12 +1022,12 @@ const year = new Date().getFullYear();
 
           <!-- ============================================================== Models -->
           <section class="doc-section" id="models">
-            <h2>Models &amp; limits</h2>
+            <h2>Models &amp; providers</h2>
             <p>
-              The only hard requirement is that the model returns token log
-              probabilities through <code>responseLogprobs</code>. The default,
-              <code>gemini-2.5-flash</code>, supports it and balances latency, cost, and
-              decision quality.
+              Xonus works with any chat model that accepts a system instruction and a
+              user prompt. Calibrated confidence additionally requires token log
+              probabilities. Gemini, OpenAI-compatible APIs, and Anthropic are built in;
+              anything else can use a custom adapter.
             </p>
 
             <div class="table-wrap">
@@ -862,16 +1042,24 @@ const year = new Date().getFullYear();
                   <tr>
                     <td>Logprobs</td>
                     <td>
-                      Requested with <code>topLogprobs</code> candidates (max 20). If the
-                      model omits them, Xonus falls back to text and reports zero
-                      confidence.
+                      Requested with <code>topLogprobs</code> candidates (max 20) when the
+                      provider supports them. If the model omits them, Xonus falls back
+                      to text and reports zero confidence.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Text-only models</td>
+                    <td>
+                      Set <code>logprobs: false</code> to skip the logprobs request. The
+                      decision still resolves, but <code>confident</code> is always
+                      <code>false</code>.
                     </td>
                   </tr>
                   <tr>
                     <td>Thinking</td>
                     <td>
-                      Disabled by default (<code>thinkingBudget: 0</code>) for predictable
-                      cost and clean decision tokens. Override through
+                      Gemini only. Disabled by default (<code>thinkingBudget: 0</code>)
+                      for predictable cost and clean decision tokens. Override through
                       <code>generationConfig</code>.
                     </td>
                   </tr>
@@ -888,7 +1076,10 @@ const year = new Date().getFullYear();
                   </tr>
                   <tr>
                     <td>Streaming</td>
-                    <td>Deliberation is always streamed so Xonus can abort early.</td>
+                    <td>
+                      Deliberation is streamed by the built-in adapters so Xonus can abort
+                      early. A custom provider may yield a single chunk.
+                    </td>
                   </tr>
                   <tr>
                     <td>Cost</td>
@@ -911,6 +1102,160 @@ const year = new Date().getFullYear();
                 </p>
               </div>
             </div>
+          </section>
+
+          <!-- ============================================================ Benchmark -->
+          <section class="doc-section" id="benchmark">
+            <h2>Benchmark proof</h2>
+            <p class="lead">
+              A 50-scenario empirical trial compared three rotation-sampling strategies
+              under the same model, prompts, and option sets.
+            </p>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Sampling strategy</th>
+                    <th>Accuracy</th>
+                    <th>Avg. rotations read</th>
+                    <th>Total time (50 scenarios)</th>
+                    <th>Relative speedup</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>van der Corput (AnyJev baseline)</td>
+                    <td>90.0%</td>
+                    <td>2.33</td>
+                    <td>51.82s</td>
+                    <td>1.00×</td>
+                  </tr>
+                  <tr>
+                    <td>Golden ratio (φ)</td>
+                    <td>90.0%</td>
+                    <td>2.42</td>
+                    <td>51.80s</td>
+                    <td>1.00×</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Active dynamic (Xonus)</strong></td>
+                    <td><strong>90.0%</strong></td>
+                    <td><strong>2.22</strong></td>
+                    <td><strong>38.27s</strong></td>
+                    <td><strong>1.35×</strong></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p>
+              Accuracy is identical across all three strategies. Xonus saved 13.55
+              seconds over the 50 scenarios — a 26.1% reduction in wall-clock time,
+              computed from the totals above.
+            </p>
+
+            <h3>What the trial measures</h3>
+            <ul>
+              <li>
+                <strong>Accuracy</strong> — whether the chosen option matched the
+                labelled answer.
+              </li>
+              <li>
+                <strong>Rotations read</strong> — how many candidate rotations the
+                strategy inspected before committing.
+              </li>
+              <li>
+                <strong>Total time</strong> — wall-clock time to complete all 50
+                scenarios, including model round trips.
+              </li>
+            </ul>
+
+            <div class="callout">
+              <span class="callout-icon">i</span>
+              <div>
+                <p>
+                  Relative speedup is computed from the wall-clock totals, not copied from
+                  a separate run. Always re-measure on your own model, prompts, and
+                  latency profile before making a production decision.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <!-- ============================================================== AnyJev -->
+          <section class="doc-section" id="anyjev">
+            <h2>Xonus vs. AnyJev</h2>
+            <p class="lead">
+              AnyJev is the foundational academic baseline. Xonus is the production
+              engine built for real deployments: faster sampling, deterministic prompt
+              construction, native application SDKs, and parallel prefill.
+            </p>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Capability</th>
+                    <th>AnyJev</th>
+                    <th>Xonus</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Rotation selection</td>
+                    <td>Static van der Corput sequence</td>
+                    <td>Active dynamic sampling</td>
+                  </tr>
+                  <tr>
+                    <td>Prompt order</td>
+                    <td>Input-order sensitive</td>
+                    <td>Canonical pre-sort, then cyclic shift</td>
+                  </tr>
+                  <tr>
+                    <td>Packaging</td>
+                    <td>PyTorch research codebase</td>
+                    <td>TypeScript/Node SDK + Python integration path</td>
+                  </tr>
+                  <tr>
+                    <td>Prefill</td>
+                    <td>Sequential round trips</td>
+                    <td>Async parallel prefill</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h3>1. Active dynamic sampling</h3>
+            <p>
+              AnyJev reads rotations from a static van der Corput sequence regardless of
+              how close the options are. Xonus inspects the top two candidates and picks
+              the next unread rotation that maximizes their spatial separation. In the
+              50-scenario trial, that reduced the average from 2.33–2.42 rotations to
+              2.22.
+            </p>
+
+            <h3>2. Canonical pre-sorting</h3>
+            <p>
+              Xonus sorts options alphabetically before the cyclic shift. The initial
+              prompt set is invariant to the input array order, eliminating adjacency and
+              position bias from the option list.
+            </p>
+
+            <h3>3. Native production SDKs</h3>
+            <p>
+              AnyJev shipped as an academic PyTorch codebase. Xonus exposes the decision
+              protocol from TypeScript/Node.js on serverless and web platforms, with a
+              Python integration path for vLLM/FastAPI services. The provider layer is
+              shared, so the same options and thresholds work across runtimes.
+            </p>
+
+            <h3>4. Async parallel prefill</h3>
+            <p>
+              Xonus executes rotation queries asynchronously in parallel over cloud APIs
+              such as Gemini Flash, collapsing wall-clock round trips into a single pass
+              instead of waiting for each rotation sequentially.
+            </p>
           </section>
 
           <!-- =========================================================== Publishing -->
@@ -948,17 +1293,26 @@ const year = new Date().getFullYear();
 
             <h3>Is Xonus an LLM?</h3>
             <p>
-              No. It is a thin, typed layer over Gemini that turns a multiple-choice
-              question into a probability-aware decision. It does not train or host a
-              model.
+              No. It is a thin, typed layer over any supported chat model that turns a
+              multiple-choice question into a probability-aware decision. It does not
+              train or host a model.
             </p>
 
             <h3>Can I use it with OpenAI or Anthropic?</h3>
             <p>
-              Not directly. The implementation depends on Gemini's
-              <code>responseLogprobs</code> response shape. A different provider would
-              need its own adapter in <code>src/logprobs.ts</code> and
-              <code>src/xonus.ts</code>.
+              Yes. Use <code>provider: 'openai'</code> for OpenAI and any
+              OpenAI-compatible API, or <code>provider: 'anthropic'</code> for Claude.
+              OpenAI-compatible models that expose logprobs keep calibrated confidence.
+              Anthropic returns text only today, so Xonus reports zero confidence and
+              <code>confident: false</code> instead of inventing evidence.
+            </p>
+
+            <h3>Can I use a model that is not built in?</h3>
+            <p>
+              Yes. Pass an <code>XonusProvider</code> object with
+              <code>generate()</code> and <code>stream()</code>. A provider chunk is just
+              text plus optional logprob steps, so wrapping another SDK or internal
+              endpoint takes a few lines.
             </p>
 
             <h3>Why letters instead of option text?</h3>
@@ -985,7 +1339,7 @@ const year = new Date().getFullYear();
             <h3>Does Xonus store anything?</h3>
             <p>
               No. The SDK is stateless. Requests go directly from your process to the
-              Gemini API using your key.
+              selected provider using your key.
             </p>
           </section>
 
@@ -997,14 +1351,23 @@ const year = new Date().getFullYear();
               closed-source projects. See <code>sdk/LICENSE</code> in the repository.
             </p>
             <p class="small muted">
-              Xonus is an independent project and is not affiliated with Google. Gemini
-              is a trademark of Google LLC.
+              Xonus is an independent project and is not affiliated with Google, OpenAI,
+              or Anthropic. Gemini, OpenAI, and Claude are trademarks of their respective
+              owners.
             </p>
           </section>
 
           <div class="docs-footer">
             <span>© {year} Xonus · v0.1.0</span>
-            <span><a href="/" class="muted">← Back to landing</a></span>
+            <span class="docs-footer-links">
+              <a href={site.repo} target="_blank" rel="noreferrer">
+                <GitHubIcon size={13} /> Contribute
+              </a>
+              <a href={site.sponsor} target="_blank" rel="noreferrer">
+                <HeartIcon size={13} /> Sponsor
+              </a>
+              <a href="/" class="muted">← Back to landing</a>
+            </span>
           </div>
         </article>
       </div>

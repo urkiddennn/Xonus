@@ -1,7 +1,7 @@
 {
   "name": "xonus",
   "version": "0.1.0",
-  "description": "A Gemini-native decision engine: log-odds early stopping plus answer-mass quality gating.",
+  "description": "A model-agnostic decision engine: log-odds early stopping plus answer-mass quality gating.",
   "license": "MIT",
   "author": "Xonus",
   "type": "module",
@@ -33,6 +33,9 @@
   "keywords": [
     "xonus",
     "gemini",
+    "openai",
+    "anthropic",
+    "openai-compatible",
     "google-genai",
     "decision-engine",
     "logprobs",
@@ -41,7 +44,9 @@
     "llm",
     "ai",
     "classifier",
-    "routing"
+    "routing",
+    "ollama",
+    "vllm"
   ],
   "scripts": {
     "build": "tsup",

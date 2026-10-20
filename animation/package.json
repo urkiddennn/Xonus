@@ -1,0 +1,15 @@
+{
+  "name": "@xonus/animation",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Xonus motion-graphics promo, authored in HyperFrames.",
+  "scripts": {
+    "dev": "npx --yes hyperframes@0.8.181 preview",
+    "check": "npx --yes hyperframes@0.8.181 check",
+    "render": "npx --yes hyperframes@0.8.181 render --output output/xonus-promo.mp4",
+    "score": "node scripts/build-score.mjs",
+    "build": "npm run score && npm run render",
+    "publish": "npx --yes hyperframes@0.8.181 publish"
+  }
+}

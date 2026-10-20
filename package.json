@@ -14,6 +14,11 @@
     "build:all": "npm run build && npm run build:landing",
     "preview:landing": "npm run preview --workspace @xonus/landing",
     "check:landing": "npm run check --workspace @xonus/landing",
+    "dev:animation": "npm --prefix animation run dev",
+    "check:animation": "npm --prefix animation run check",
+    "render:animation": "npm --prefix animation run render",
+    "build:animation": "npm --prefix animation run build",
+    "score:animation": "npm --prefix animation run score",
     "test": "npm run test --workspace xonus",
     "typecheck": "npm run typecheck --workspace xonus",
     "pack:check": "npm pack --workspace xonus --dry-run"

@@ -1,4 +1,8 @@
 ---
+import GitHubIcon from './GitHubIcon.astro';
+import HeartIcon from './HeartIcon.astro';
+import { site } from '../data/site';
+
 const year = new Date().getFullYear();
 ---
 
@@ -11,8 +15,8 @@ const year = new Date().getFullYear();
           Xonus
         </a>
         <p>
-          A Gemini-native decision engine with log-odds early stopping and an answer-mass
-          quality gate. Built to be dropped into every project.
+          A model-agnostic decision engine with log-odds early stopping and an answer-mass
+          quality gate. Gemini, OpenAI, Anthropic, or your own adapter — one contract.
         </p>
       </div>
 
@@ -21,6 +25,7 @@ const year = new Date().getFullYear();
         <ul>
           <li><a href="/#features">Features</a></li>
           <li><a href="/#how">How it works</a></li>
+          <li><a href="/#benchmark">Benchmark</a></li>
           <li><a href="/#gate">Quality gate</a></li>
           <li><a href="/#faq">FAQ</a></li>
         </ul>
@@ -40,15 +45,32 @@ const year = new Date().getFullYear();
         <h4>Resources</h4>
         <ul>
           <li>
-            <a href="https://www.npmjs.com/package/xonus" target="_blank" rel="noreferrer">
-              npm package ↗
+            <a
+              class="with-icon"
+              href={site.repo}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <GitHubIcon size={13} /> Contribute on GitHub ↗
             </a>
           </li>
           <li>
-            <a href="https://ai.google.dev/gemini-api/docs" target="_blank" rel="noreferrer">
-              Gemini API ↗
+            <a
+              class="with-icon donate"
+              href={site.sponsor}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <HeartIcon size={13} /> Sponsor / donate ↗
             </a>
           </li>
+          <li>
+            <a href={site.npm} target="_blank" rel="noreferrer">
+              npm package ↗
+            </a>
+          </li>
+          <li><a href="/docs#providers">Provider guide</a></li>
+          <li><a href="/docs#benchmark">Benchmark</a></li>
           <li><a href="/docs#publishing">Publishing</a></li>
           <li><a href="/docs#license">License</a></li>
         </ul>

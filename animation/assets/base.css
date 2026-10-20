@@ -1,0 +1,606 @@
+/* ==========================================================================
+   Xonus — promotional video design system
+   Shared tokens and chrome for every scene composition.
+   ========================================================================== */
+
+@font-face {
+  font-family: 'Inter';
+  src: url('/assets/fonts/inter.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'Space Grotesk';
+  src: url('/assets/fonts/space-grotesk.woff2') format('woff2');
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/assets/fonts/jetbrains-mono.woff2') format('woff2');
+  font-weight: 100 800;
+  font-style: normal;
+  font-display: block;
+}
+
+:root {
+  --bg: #05070b;
+  --bg-soft: #080b12;
+  --surface: #0c111a;
+  --surface-2: #101725;
+  --border: rgba(255, 255, 255, 0.09);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --text: #eef2f8;
+  --text-soft: #c3ccda;
+  --muted: #8e9aab;
+  --faint: #667184;
+  --accent: #b8ff5c;
+  --accent-soft: rgba(184, 255, 92, 0.12);
+  --accent-line: rgba(184, 255, 92, 0.35);
+  --cyan: #5ce1e6;
+  --violet: #a99cff;
+  --danger: #ff8585;
+  --font-body: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Space Grotesk', 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Consolas, monospace;
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+}
+
+/* --------------------------------------------------------------------------
+   Root composition
+   -------------------------------------------------------------------------- */
+
+#xonus-promo {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+#xonus-promo > div[data-composition-src] {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+}
+
+#bg,
+#grain,
+#vignette,
+#end-fade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+#bg {
+  z-index: 0;
+  overflow: hidden;
+}
+
+.bg-base {
+  position: absolute;
+  inset: 0;
+  background: var(--bg);
+}
+
+.bg-glow {
+  position: absolute;
+  border-radius: 50%;
+  will-change: transform, opacity;
+}
+
+#glow-lime {
+  width: 1280px;
+  height: 920px;
+  left: -360px;
+  top: -440px;
+  opacity: 0.85;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(184, 255, 92, 0.2) 0%,
+    rgba(184, 255, 92, 0.07) 34%,
+    rgba(184, 255, 92, 0.02) 56%,
+    transparent 72%
+  );
+}
+
+#glow-cyan {
+  width: 1180px;
+  height: 940px;
+  right: -440px;
+  top: -340px;
+  opacity: 0.8;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(92, 225, 230, 0.16) 0%,
+    rgba(92, 225, 230, 0.05) 38%,
+    transparent 70%
+  );
+}
+
+#glow-violet {
+  width: 1500px;
+  height: 940px;
+  left: 240px;
+  bottom: -680px;
+  opacity: 0.65;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(169, 156, 255, 0.13) 0%,
+    rgba(169, 156, 255, 0.04) 42%,
+    transparent 70%
+  );
+}
+
+#problem-glow {
+  width: 1180px;
+  height: 1020px;
+  right: -180px;
+  top: -80px;
+  opacity: 0;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(255, 133, 133, 0.16) 0%,
+    rgba(255, 133, 133, 0.05) 40%,
+    transparent 70%
+  );
+}
+
+#grid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.55;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.032) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.032) 1px, transparent 1px);
+  background-size: 80px 80px;
+  mask-image: radial-gradient(ellipse 88% 68% at 50% 32%, black 6%, transparent 74%);
+  -webkit-mask-image: radial-gradient(ellipse 88% 68% at 50% 32%, black 6%, transparent 74%);
+}
+
+#grain {
+  z-index: 19;
+  opacity: 0.075;
+  mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23n)' opacity='0.62'/%3E%3C/svg%3E");
+}
+
+/* A short light leak bridges each hard cut while the incoming scene builds. */
+#cut-flash {
+  position: absolute;
+  inset: 0;
+  z-index: 15;
+  opacity: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  background:
+    radial-gradient(ellipse 64% 58% at 58% 46%, rgba(184, 255, 92, 0.2), rgba(92, 225, 230, 0.055) 40%, transparent 72%),
+    linear-gradient(90deg, transparent, rgba(92, 225, 230, 0.05) 50%, transparent);
+}
+
+#cut-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  z-index: 16;
+  height: 1px;
+  opacity: 0;
+  transform-origin: left center;
+  background: linear-gradient(90deg, transparent, rgba(184, 255, 92, 0.85) 30%, rgba(92, 225, 230, 0.75) 70%, transparent);
+  box-shadow: 0 0 18px rgba(184, 255, 92, 0.45);
+}
+
+#vignette {
+  z-index: 18;
+  background:
+    radial-gradient(ellipse 72% 62% at 50% 46%, transparent 44%, rgba(0, 0, 0, 0.34) 100%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.22), transparent 18%, transparent 82%, rgba(0, 0, 0, 0.3));
+}
+
+/* --------------------------------------------------------------------------
+   Persistent chrome
+   -------------------------------------------------------------------------- */
+
+#chrome-top,
+#chrome-bottom {
+  position: absolute;
+  left: 58px;
+  right: 58px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+#chrome-top {
+  top: 38px;
+}
+
+#chrome-bottom {
+  bottom: 38px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.chrome-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.chrome-x {
+  width: 25px;
+  height: 25px;
+  flex: none;
+}
+
+.chrome-divider {
+  width: 1px;
+  height: 15px;
+  background: var(--border-strong);
+}
+
+.chrome-sub {
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.13em;
+}
+
+.chrome-right {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.chrome-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-soft);
+}
+
+.chrome-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 10px rgba(184, 255, 92, 0.8);
+}
+
+.chapter-wrap {
+  position: relative;
+  width: 190px;
+  height: 15px;
+  text-align: right;
+}
+
+.chrome-chapter {
+  position: absolute;
+  right: 0;
+  top: 0;
+  opacity: 0;
+  color: var(--text-soft);
+  white-space: nowrap;
+}
+
+#progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  z-index: 20;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+#progress-fill {
+  width: 100%;
+  height: 100%;
+  transform-origin: left center;
+  background: linear-gradient(90deg, var(--accent), var(--cyan) 62%, var(--violet));
+}
+
+.corner {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  z-index: 20;
+  opacity: 0.46;
+  pointer-events: none;
+}
+
+.corner.tl {
+  top: 20px;
+  left: 20px;
+  border-top: 1px solid var(--border-strong);
+  border-left: 1px solid var(--border-strong);
+}
+
+.corner.tr {
+  top: 20px;
+  right: 20px;
+  border-top: 1px solid var(--border-strong);
+  border-right: 1px solid var(--border-strong);
+}
+
+.corner.bl {
+  bottom: 20px;
+  left: 20px;
+  border-bottom: 1px solid var(--border-strong);
+  border-left: 1px solid var(--border-strong);
+}
+
+.corner.br {
+  bottom: 20px;
+  right: 20px;
+  border-bottom: 1px solid var(--border-strong);
+  border-right: 1px solid var(--border-strong);
+}
+
+#end-fade {
+  z-index: 30;
+  opacity: 0;
+  background: var(--bg);
+}
+
+/* --------------------------------------------------------------------------
+   Shared scene primitives
+   -------------------------------------------------------------------------- */
+
+.scene {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.stage {
+  position: absolute;
+  inset: 0;
+}
+
+.kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.kicker::before {
+  content: '';
+  display: block;
+  width: 28px;
+  height: 1px;
+  background: var(--accent);
+  box-shadow: 0 0 8px rgba(184, 255, 92, 0.6);
+}
+
+.headline {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.05em;
+  line-height: 0.96;
+  color: var(--text);
+}
+
+.headline .line {
+  display: block;
+}
+
+.headline .accent {
+  color: var(--accent);
+}
+
+.headline .cyan {
+  color: var(--cyan);
+}
+
+.headline .danger {
+  color: var(--danger);
+}
+
+.headline .gradient {
+  background: linear-gradient(100deg, var(--accent) 6%, var(--cyan) 58%, var(--violet) 104%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.subcopy {
+  margin: 0;
+  color: var(--muted);
+  font-family: var(--font-body);
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-soft);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.chip.accent {
+  border-color: rgba(184, 255, 92, 0.28);
+  background: rgba(184, 255, 92, 0.08);
+  color: var(--accent);
+}
+
+.chip.danger {
+  border-color: rgba(255, 133, 133, 0.3);
+  background: rgba(255, 133, 133, 0.08);
+  color: var(--danger);
+}
+
+.chip.cyan {
+  border-color: rgba(92, 225, 230, 0.28);
+  background: rgba(92, 225, 230, 0.08);
+  color: var(--cyan);
+}
+
+.chip-dot {
+  width: 6px;
+  height: 6px;
+  flex: none;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 8px currentColor;
+}
+
+.panel {
+  position: absolute;
+  border: 1px solid var(--border-strong);
+  border-radius: 24px;
+  background:
+    linear-gradient(180deg, rgba(18, 25, 38, 0.94), rgba(8, 12, 19, 0.97));
+  box-shadow:
+    0 42px 110px rgba(0, 0, 0, 0.52),
+    0 0 0 1px rgba(255, 255, 255, 0.02) inset,
+    0 0 80px rgba(184, 255, 92, 0.045);
+  overflow: hidden;
+}
+
+.panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(140deg, rgba(184, 255, 92, 0.06), transparent 36%);
+  pointer-events: none;
+}
+
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  height: 68px;
+  padding: 0 26px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.018);
+}
+
+.panel-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.panel-dots {
+  display: flex;
+  gap: 7px;
+}
+
+.panel-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #2c3543;
+}
+
+.panel-dot:first-child {
+  background: #3c4a5e;
+}
+
+.panel-badge {
+  padding: 5px 10px;
+  border: 1px solid rgba(184, 255, 92, 0.26);
+  border-radius: 999px;
+  background: rgba(184, 255, 92, 0.07);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+}
+
+.rule {
+  height: 1px;
+  background: var(--border);
+  transform-origin: left center;
+}
+
+.ghost-type {
+  position: absolute;
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.075em;
+  line-height: 0.74;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.027);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+@keyframes hf-blink {
+  0%,
+  48% {
+    opacity: 1;
+  }
+  49%,
+  100% {
+    opacity: 0;
+  }
+}

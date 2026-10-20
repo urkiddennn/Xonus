@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    <template>
+      <style>
+        #scene-01-intro {
+          position: absolute;
+          inset: 0;
+          width: 100%;
+          height: 100%;
+          overflow: hidden;
+        }
+
+        .s1-stage {
+          position: absolute;
+          inset: 0;
+        }
+
+        .s1-ghost {
+          position: absolute;
+          left: -54px;
+          bottom: -172px;
+          font-family: var(--font-display);
+          font-size: 390px;
+          font-weight: 700;
+          letter-spacing: -0.075em;
+          line-height: 0.74;
+          color: rgba(255, 255, 255, 0.026);
+          white-space: nowrap;
+          text-transform: uppercase;
+        }
+
+        .s1-top-rule {
+          position: absolute;
+          left: 140px;
+          top: 172px;
+          width: 1640px;
+          height: 1px;
+          background: linear-gradient(90deg, var(--accent-line), var(--border) 38%, transparent 92%);
+          transform-origin: left center;
+        }
+
+        .s1-kicker {
+          position: absolute;
+          left: 140px;
+          top: 126px;
+        }
+
+        .s1-lockup {
+          position: absolute;
+          left: 140px;
+          top: 298px;
+          display: flex;
+          align-items: center;
+          gap: 58px;
+        }
+
+        .s1-mark-wrap {
+          position: relative;
+          width: 260px;
+          height: 260px;
+          flex: none;
+        }
+
+        .s1-mark-glow {
+          position: absolute;
+          inset: -92px;
+          border-radius: 50%;
+          background: radial-gradient(circle, rgba(184, 255, 92, 0.24), rgba(92, 225, 230, 0.05) 48%, transparent 70%);
+          filter: blur(6px);
+        }
+
+        .s1-orbit {
+          position: absolute;
+          inset: -62px;
+          width: 384px;
+          height: 384px;
+        }
+
+        .s1-mark {
+          position: relative;
+          width: 260px;
+          height: 260px;
+          filter: drop-shadow(0 30px 80px rgba(0, 0, 0, 0.6));
+        }
+
+        .s1-scan {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 260px;
+          height: 2px;
+          opacity: 0;
+          background: linear-gradient(90deg, transparent, rgba(184, 255, 92, 0.9), transparent);
+          box-shadow: 0 0 18px rgba(184, 255, 92, 0.7);
+        }
+
+        .s1-word {
+          display: flex;
+          flex-direction: column;
+          padding-top: 6px;
+        }
+
+        .s1-brand {
+          display: flex;
+          align-items: baseline;
+          font-family: var(--font-display);
+          font-size: 178px;
+          font-weight: 700;
+          line-height: 0.8;
+          letter-spacing: 0.04em;
+          color: var(--text);
+        }
+
+        .s1-brand span {
+          display: inline-block;
+        }
+
+        .s1-brand-under {
+          width: 100%;
+          height: 2px;
+          margin-top: 25px;
+          transform-origin: left center;
+          background: linear-gradient(90deg, var(--accent), var(--cyan) 58%, transparent 100%);
+        }
+
+        .s1-tagline {
+          margin: 26px 0 0;
+          max-width: 760px;
+          color: var(--text-soft);
+          font-family: var(--font-body);
+          font-size: 40px;
+          font-weight: 400;
+          line-height: 1.28;
+          letter-spacing: -0.025em;
+        }
+
+        .s1-tagline .line {
+          display: block;
+        }
+
+        .s1-tagline .accent {
+          color: var(--accent);
+        }
+
+        .s1-meta {
+          position: absolute;
+          left: 1420px;
+          top: 300px;
+          width: 360px;
+        }
+
+        .s1-meta-rule {
+          position: absolute;
+          left: -50px;
+          top: 0;
+          width: 1px;
+          height: 348px;
+          background: linear-gradient(180deg, var(--border-strong), transparent);
+          transform-origin: top center;
+        }
+
+        .s1-meta-row {
+          display: grid;
+          grid-template-columns: 1fr auto;
+          gap: 16px;
+          align-items: baseline;
+          padding: 15px 0;
+          border-top: 1px solid var(--border);
+        }
+
+        .s1-meta-row:first-child {
+          border-top: 0;
+          padding-top: 0;
+        }
+
+        .s1-meta-label {
+          color: var(--muted);
+          font-family: var(--font-mono);
+          font-size: 11px;
+          letter-spacing: 0.16em;
+          text-transform: uppercase;
+        }
+
+        .s1-meta-value {
+          color: var(--text-soft);
+          font-family: var(--font-mono);
+          font-size: 14px;
+          text-align: right;
+        }
+
+        .s1-meta-row:first-child .s1-meta-value {
+          color: var(--accent);
+        }
+
+        .s1-foot {
+          position: absolute;
+          left: 140px;
+          bottom: 122px;
+          display: flex;
+          align-items: center;
+          gap: 14px;
+          color: var(--muted);
+          font-family: var(--font-mono);
+          font-size: 12px;
+          letter-spacing: 0.14em;
+          text-transform: uppercase;
+        }
+
+        .s1-foot i {
+          display: block;
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: var(--accent);
+          box-shadow: 0 0 10px rgba(184, 255, 92, 0.8);
+        }
+
+        .s1-particle {
+          position: absolute;
+          width: 4px;
+          height: 4px;
+          border-radius: 50%;
+          background: var(--accent);
+          box-shadow: 0 0 10px rgba(184, 255, 92, 0.7);
+        }
+
+        .s1-p1 {
+          left: 1140px;
+          top: 260px;
+        }
+
+        .s1-p2 {
+          left: 1280px;
+          top: 430px;
+          width: 3px;
+          height: 3px;
+          background: var(--cyan);
+          box-shadow: 0 0 10px rgba(92, 225, 230, 0.7);
+        }
+
+        .s1-p3 {
+          left: 1060px;
+          top: 760px;
+          width: 2px;
+          height: 2px;
+        }
+
+        .s1-p4 {
+          left: 1670px;
+          top: 820px;
+          width: 3px;
+          height: 3px;
+          background: var(--cyan);
+          box-shadow: 0 0 10px rgba(92, 225, 230, 0.7);
+        }
+
+        .s1-p5 {
+          left: 780px;
+          top: 190px;
+          width: 2px;
+          height: 2px;
+        }
+      </style>
+
+      <div data-hf-id="hf-918x" id="scene-01-intro" data-composition-id="scene-01-intro" data-width="1920" data-height="1080">
+        <div data-hf-id="hf-tab5" class="s1-stage">
+          <div data-hf-id="hf-yh94" class="s1-ghost" data-layout-ignore data-layout-allow-overflow data-layout-allow-occlusion>Certain</div>
+          <div data-hf-id="hf-72id" class="s1-top-rule"></div>
+          <p data-hf-id="hf-czjj" class="kicker s1-kicker">01 / Intro — certainty</p>
+
+          <div data-hf-id="hf-2gdb" class="s1-lockup">
+            <div data-hf-id="hf-um16" class="s1-mark-wrap" id="s1-mark-wrap">
+              <div data-hf-id="hf-ls8m" class="s1-mark-glow" id="s1-mark-glow"></div>
+              <svg data-hf-id="hf-se14" class="s1-orbit" viewBox="0 0 384 384" fill="none" aria-hidden="true" data-layout-allow-overflow>
+                <g data-hf-id="hf-zd7h" id="s1-orbit-spin">
+                  <circle data-hf-id="hf-6fwn" cx="192" cy="192" r="188" stroke="rgba(184,255,92,0.16)" stroke-width="1" stroke-dasharray="2 10" />
+                  <circle data-hf-id="hf-m5jw" cx="192" cy="192" r="154" stroke="rgba(92,225,230,0.12)" stroke-width="1" stroke-dasharray="1 14" />
+                </g>
+                <circle data-hf-id="hf-rz10" cx="192" cy="192" r="118" stroke="rgba(255,255,255,0.07)" stroke-width="1" />
+              </svg>
+              <svg data-hf-id="hf-jm20" class="s1-mark" viewBox="0 0 260 260" fill="none">
+                <defs data-hf-id="hf-mh0t">
+                  <linearGradient data-hf-id="hf-r5qu" id="s1-mark-grad" x1="10" y1="8" x2="250" y2="252" gradientUnits="userSpaceOnUse">
+                    <stop data-hf-id="hf-d4ei" stop-color="#B8FF5C" />
+                    <stop data-hf-id="hf-f6pg" offset="1" stop-color="#5CE1E6" />
+                  </linearGradient>
+                </defs>
+                <rect data-hf-id="hf-vnqc" x="4" y="4" width="252" height="252" rx="72" fill="url(#s1-mark-grad)" />
+                <rect data-hf-id="hf-hn31" x="5.5" y="5.5" width="249" height="249" rx="70.5" stroke="rgba(255,255,255,0.38)" stroke-width="1.4" />
+                <path data-hf-id="hf-go32"
+                  id="s1-stroke-a"
+                  d="M78 78L182 182"
+                  pathLength="1"
+                  stroke="#061008"
+                  stroke-width="24"
+                  stroke-linecap="round"
+                  stroke-dasharray="1"
+                  stroke-dashoffset="1"
+                />
+                <path data-hf-id="hf-0mf5"
+                  id="s1-stroke-b"
+                  d="M182 78L78 182"
+                  pathLength="1"
+                  stroke="#061008"
+                  stroke-width="24"
+                  stroke-linecap="round"
+                  stroke-dasharray="1"
+                  stroke-dashoffset="1"
+                />
+              </svg>
+              <div data-hf-id="hf-35r6" class="s1-scan" id="s1-scan"></div>
+            </div>
+
+            <div data-hf-id="hf-qfmp" class="s1-word">
+              <div data-hf-id="hf-6mxm" class="s1-brand" aria-label="Xonus">
+                <span data-hf-id="hf-cuij">X</span><span data-hf-id="hf-h7vu">O</span><span data-hf-id="hf-gtkt">N</span><span data-hf-id="hf-eu1o">U</span><span data-hf-id="hf-fmnq">S</span>
+              </div>
+              <div data-hf-id="hf-bk1e" class="s1-brand-under" id="s1-brand-under"></div>
+              <p data-hf-id="hf-3ymq" class="s1-tagline">
+                <span data-hf-id="hf-3tei" class="line">Decisions that stop the</span>
+                <span data-hf-id="hf-g029" class="line">moment they're <span data-hf-id="hf-udxr" class="accent">certain.</span></span>
+              </p>
+            </div>
+          </div>
+
+          <div data-hf-id="hf-65ny" class="s1-meta">
+            <div data-hf-id="hf-dmte" class="s1-meta-rule" id="s1-meta-rule"></div>
+            <div data-hf-id="hf-vtgp" class="s1-meta-row">
+              <span data-hf-id="hf-vs3m" class="s1-meta-label">Engine</span>
+              <span data-hf-id="hf-cbmf" class="s1-meta-value">Log-odds early stop</span>
+            </div>
+            <div data-hf-id="hf-ruu5" class="s1-meta-row">
+              <span data-hf-id="hf-w63r" class="s1-meta-label">Gate</span>
+              <span data-hf-id="hf-aevi" class="s1-meta-value">Answer mass ≥ 0.99</span>
+            </div>
+            <div data-hf-id="hf-t1r8" class="s1-meta-row">
+              <span data-hf-id="hf-uwje" class="s1-meta-label">Providers</span>
+              <span data-hf-id="hf-eroa" class="s1-meta-value">Gemini · OpenAI · Anthropic</span>
+            </div>
+            <div data-hf-id="hf-sng7" class="s1-meta-row">
+              <span data-hf-id="hf-i1b7" class="s1-meta-label">Footprint</span>
+              <span data-hf-id="hf-ws3s" class="s1-meta-value">Zero extra infrastructure</span>
+            </div>
+          </div>
+
+          <div data-hf-id="hf-edgd" class="s1-foot">
+            <i data-hf-id="hf-wt6k"></i>
+            <span data-hf-id="hf-0jva">The decision layer for AI products</span>
+          </div>
+
+          <span data-hf-id="hf-07wc" class="s1-particle s1-p1"></span>
+          <span data-hf-id="hf-b3dz" class="s1-particle s1-p2"></span>
+          <span data-hf-id="hf-759y" class="s1-particle s1-p3"></span>
+          <span data-hf-id="hf-ft5t" class="s1-particle s1-p4"></span>
+          <span data-hf-id="hf-f1i0" class="s1-particle s1-p5"></span>
+        </div>
+      </div>
+
+      <script>
+        const tl = gsap.timeline({ paused: true });
+
+        tl.fromTo('#s1-stage', { opacity: 0 }, { opacity: 1, duration: 0.35, ease: 'power1.out' }, 0);
+
+        tl.fromTo(
+          '#s1-mark-wrap',
+          { opacity: 0, scale: 0.76 },
+          { opacity: 1, scale: 1, duration: 0.95, ease: 'expo.out' },
+          0.18
+        );
+
+        tl.fromTo('#s1-stroke-a', { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 0.55, ease: 'power2.inOut' }, 0.55);
+        tl.fromTo('#s1-stroke-b', { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 0.55, ease: 'power2.inOut' }, 0.68);
+
+        tl.fromTo('#s1-orbit-spin', { rotation: 0, transformOrigin: '50% 50%' }, { rotation: 26, duration: 4, ease: 'none' }, 0.25);
+        tl.fromTo('#s1-mark-glow', { opacity: 0.45, scale: 0.9 }, { opacity: 1, scale: 1.08, duration: 1.3, ease: 'sine.inOut', yoyo: true, repeat: 1 }, 0.8);
+        tl.fromTo('#s1-scan', { opacity: 0, y: 0 }, { opacity: 0.9, duration: 0.12, ease: 'power1.in' }, 1.0);
+        tl.to('#s1-scan', { y: 258, duration: 0.9, ease: 'power2.inOut' }, 1.0);
+        tl.to('#s1-scan', { opacity: 0, duration: 0.18, ease: 'power1.out' }, 1.82);
+
+        tl.fromTo(
+          '.s1-brand span',
+          { y: 62, opacity: 0, rotationX: -56, transformPerspective: 900 },
+          { y: 0, opacity: 1, rotationX: 0, duration: 0.82, ease: 'expo.out', stagger: 0.055 },
+          0.72
+        );
+
+        tl.fromTo('#s1-brand-under', { scaleX: 0 }, { scaleX: 1, duration: 0.85, ease: 'power3.inOut' }, 1.34);
+
+        tl.fromTo(
+          '.s1-tagline .line',
+          { y: 26, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.72, ease: 'power3.out', stagger: 0.1 },
+          1.52
+        );
+
+        tl.fromTo('#s1-top-rule', { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: 1.1, ease: 'power3.inOut' }, 0.55);
+        tl.fromTo('#s1-meta-rule', { scaleY: 0, opacity: 0 }, { scaleY: 1, opacity: 1, duration: 0.8, ease: 'power2.out' }, 1.72);
+        tl.fromTo(
+          '.s1-meta-row',
+          { x: 24, opacity: 0 },
+          { x: 0, opacity: 1, duration: 0.55, ease: 'power2.out', stagger: 0.09 },
+          1.82
+        );
+        tl.fromTo('.s1-foot', { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: 'power2.out' }, 2.18);
+        tl.fromTo(
+          '.s1-particle',
+          { opacity: 0, scale: 0.4 },
+          { opacity: 0.85, scale: 1, duration: 0.7, ease: 'power2.out', stagger: 0.08 },
+          1.05
+        );
+
+        tl.to('#s1-mark-wrap', { scale: 1.06, duration: 0.5, ease: 'power2.in' }, 3.48);
+        tl.to('#s1-stage', { opacity: 0, y: -20, filter: 'blur(7px)', duration: 0.5, ease: 'power2.in' }, 3.5);
+
+        window.__timelines['scene-01-intro'] = tl;
+      </script>
+    </template>
+  </body>
+</html>

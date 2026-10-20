@@ -18,6 +18,57 @@ if (result.confident) {
   // Low answer mass or a narrow margin: don't guess.
   await escalateToHuman(result);
 }`,
+  providerGemini: `import { Xonus } from 'xonus';
+
+const xonus = new Xonus({
+  provider: 'gemini',
+  apiKey: process.env.GEMINI_API_KEY!,
+  modelName: 'gemini-2.5-flash',
+});`,
+  providerOpenAI: `import { Xonus } from 'xonus';
+
+const xonus = new Xonus({
+  provider: 'openai',
+  apiKey: process.env.OPENAI_API_KEY!,
+  modelName: 'gpt-4o-mini',
+});`,
+  providerLocal: `const xonus = new Xonus({
+  provider: 'openai',                 // OpenAI-compatible API
+  baseURL: 'http://localhost:11434/v1', // Ollama
+  modelName: 'llama3.2',
+  logprobs: false,                    // text-only model
+});`,
+  providerAnthropic: `const xonus = new Xonus({
+  provider: 'anthropic',
+  apiKey: process.env.ANTHROPIC_API_KEY!,
+  modelName: 'claude-3-5-haiku-latest',
+});`,
+  providerCustom: `import { Xonus } from 'xonus';
+import type { XonusProvider } from 'xonus';
+
+const provider: XonusProvider = {
+  id: 'my-model',
+  async generate(request) {
+    const result = await myModel.complete(request);
+    return { text: result.text, steps: result.logprobs ?? [] };
+  },
+  async stream(request) {
+    return myModel.stream(request);
+  },
+};
+
+const xonus = new Xonus({ provider, modelName: 'my-model-v1' });`,
+  providerResponse: `{
+  "decision": "Billing",
+  "confidence": 0.998,
+  "logOdds": 6.21,
+  "answerMass": 0.999,
+  "confident": true,
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "passes": 1,
+  "source": "fast"
+}`,
   landingResult: `{
   "decision": "Billing",
   "probabilities": {
@@ -35,6 +86,7 @@ if (result.confident) {
   "earlyStopped": true,
   "passes": 1,
   "source": "fast",
+  "provider": "gemini",
   "latencyMs": 184,
   "notes": []
 }`,
@@ -61,13 +113,22 @@ if (result.confident && result.decision === 'Yes') {
   await openRefundFlow();
 }`,
   install: `npm install xonus`,
-  envFile: `GEMINI_API_KEY="your-key-here"`,
-  powershell: `$env:GEMINI_API_KEY = "your-key-here"`,
+  envFile: `# Pick a provider. Gemini is the default.
+XONUS_PROVIDER="gemini"       # gemini | openai | anthropic
+XONUS_API_KEY="your-key"      # or GEMINI_API_KEY / OPENAI_API_KEY / ANTHROPIC_API_KEY
+# XONUS_BASE_URL="https://api.openai.com/v1"
+# XONUS_MODEL="gpt-4o-mini"`,
+  powershell: `# Pick the provider that matches your key.
+$env:XONUS_PROVIDER = "gemini"
+$env:GEMINI_API_KEY = "your-key-here"
+# $env:OPENAI_API_KEY = "your-key-here"
+# $env:ANTHROPIC_API_KEY = "your-key-here"`,
   esm: `import { Xonus, createXonus } from 'xonus';`,
   commonjs: `const { Xonus, createXonus } = require('xonus');`,
   triage: `import { Xonus } from 'xonus';
 
 const xonus = new Xonus({
+  provider: 'gemini',
   apiKey: process.env.GEMINI_API_KEY!,
   modelName: 'gemini-2.5-flash',
   tau: 6.0,               // log-odds needed to accept early
@@ -95,10 +156,12 @@ console.log(result.logOdds);    // 6.21`,
   });
 }`,
   fromEnv: `const xonus = Xonus.fromEnv({
-  modelName: 'gemini-2.5-flash',
+  provider: 'openai',      // optional: inferred from env when omitted
+  modelName: 'gpt-4o-mini',
   tau: 4.5,
 });`,
   fastConfig: `{
+  // Gemini fields; other adapters request the same evidence.
   responseLogprobs: true,
   logprobs: 20,
   temperature: 0,
@@ -109,6 +172,7 @@ answerMass >= answerMassGate  // on-protocol`,
   finalAnswer: `Option B best matches the reported stack trace.
 FINAL ANSWER: B`,
   advancedConfig: `const xonus = new Xonus({
+  provider: 'gemini',
   apiKey: process.env.GEMINI_API_KEY!,
   modelName: 'gemini-2.5-flash',
   tau: 7,
@@ -140,6 +204,7 @@ FINAL ANSWER: B`,
   "earlyStopped": true,
   "passes": 2,
   "source": "deliberate",
+  "provider": "gemini",
   "model": "gemini-2.5-flash",
   "latencyMs": 612,
   "rationale": "The stack trace points to the deploy pipeline.",

@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    <template>
+      <style>
+        #scene-07-outro {
+          position: absolute;
+          inset: 0;
+          width: 100%;
+          height: 100%;
+          overflow: hidden;
+        }
+
+        .s7-stage {
+          position: absolute;
+          inset: 0;
+        }
+
+        .s7-ghost {
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          margin-left: -720px;
+          margin-top: -270px;
+          width: 1440px;
+          text-align: center;
+          font-family: var(--font-display);
+          font-size: 330px;
+          font-weight: 700;
+          letter-spacing: -0.08em;
+          line-height: 0.8;
+          color: rgba(255, 255, 255, 0.022);
+          white-space: nowrap;
+          text-transform: uppercase;
+        }
+
+        .s7-lockup {
+          position: absolute;
+          inset: 0;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding-bottom: 42px;
+        }
+
+        .s7-mark-wrap {
+          position: relative;
+          width: 226px;
+          height: 226px;
+          margin-bottom: 42px;
+        }
+
+        .s7-mark-glow {
+          position: absolute;
+          inset: -88px;
+          border-radius: 50%;
+          background: radial-gradient(circle, rgba(184, 255, 92, 0.24), rgba(92, 225, 230, 0.05) 46%, transparent 70%);
+          filter: blur(8px);
+        }
+
+        .s7-orbit {
+          position: absolute;
+          left: -66px;
+          top: -66px;
+          width: 358px;
+          height: 358px;
+        }
+
+        .s7-pulse {
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          width: 360px;
+          height: 360px;
+          margin-left: -180px;
+          margin-top: -180px;
+          border: 1px solid rgba(184, 255, 92, 0.5);
+          border-radius: 50%;
+          opacity: 0;
+        }
+
+        .s7-mark {
+          position: relative;
+          width: 226px;
+          height: 226px;
+          filter: drop-shadow(0 30px 80px rgba(0, 0, 0, 0.6));
+        }
+
+        .s7-brand {
+          display: flex;
+          align-items: baseline;
+          font-family: var(--font-display);
+          font-size: 132px;
+          font-weight: 700;
+          line-height: 0.8;
+          letter-spacing: 0.18em;
+          color: var(--text);
+          padding-left: 0.18em;
+        }
+
+        .s7-brand span {
+          display: inline-block;
+        }
+
+        .s7-tagline {
+          margin: 34px 0 0;
+          max-width: 900px;
+          color: var(--text-soft);
+          font-family: var(--font-body);
+          font-size: 38px;
+          font-weight: 400;
+          line-height: 1.32;
+          letter-spacing: -0.025em;
+          text-align: center;
+        }
+
+        .s7-tagline .accent {
+          color: var(--accent);
+        }
+
+        .s7-cta {
+          display: inline-flex;
+          align-items: center;
+          gap: 18px;
+          margin-top: 32px;
+          padding: 17px 26px;
+          border: 1px solid rgba(184, 255, 92, 0.4);
+          border-radius: 14px;
+          background: rgba(184, 255, 92, 0.09);
+          box-shadow: 0 18px 60px rgba(0, 0, 0, 0.35), 0 0 44px rgba(184, 255, 92, 0.08);
+        }
+
+        .s7-cta-label {
+          display: flex;
+          flex-direction: column;
+          color: var(--accent);
+          font-family: var(--font-mono);
+          font-size: 11px;
+          letter-spacing: 0.16em;
+          line-height: 1.55;
+          text-transform: uppercase;
+        }
+
+        .s7-cta-code {
+          color: var(--text);
+          font-family: var(--font-mono);
+          font-size: 27px;
+          letter-spacing: -0.02em;
+        }
+
+        .s7-cta-code b {
+          color: var(--accent);
+          font-weight: 500;
+        }
+
+        .s7-community {
+          display: inline-flex;
+          align-items: center;
+          gap: 18px;
+          margin-top: 14px;
+          padding: 10px 18px;
+          border: 1px solid var(--border);
+          border-radius: 999px;
+          background: rgba(255, 255, 255, 0.025);
+        }
+
+        .s7-community-item {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          color: var(--muted);
+          font-family: var(--font-mono);
+          font-size: 12px;
+          letter-spacing: 0.01em;
+          white-space: nowrap;
+        }
+
+        .s7-community-item b {
+          color: var(--text-soft);
+          font-weight: 500;
+        }
+
+        .s7-community-item svg {
+          width: 17px;
+          height: 17px;
+          flex: none;
+        }
+
+        .s7-community-item .s7-gh {
+          fill: currentColor;
+          color: var(--text);
+        }
+
+        .s7-community-item .s7-heart {
+          fill: none;
+          stroke: currentColor;
+          stroke-width: 1.7;
+          stroke-linecap: round;
+          stroke-linejoin: round;
+          color: #ffb0b0;
+        }
+
+        .s7-community-item.donate {
+          color: rgba(255, 176, 176, 0.68);
+        }
+
+        .s7-community-item.donate b {
+          color: #ffb0b0;
+        }
+
+        .s7-community-divider {
+          width: 1px;
+          height: 16px;
+          background: var(--border-strong);
+        }
+
+        .s7-copy {
+          display: grid;
+          place-items: center;
+          width: 34px;
+          height: 34px;
+          border: 1px solid var(--border-strong);
+          border-radius: 8px;
+          color: var(--muted);
+        }
+
+        .s7-copy svg {
+          width: 16px;
+          height: 16px;
+          stroke: currentColor;
+          fill: none;
+          stroke-width: 1.6;
+          stroke-linecap: round;
+          stroke-linejoin: round;
+        }
+
+        .s7-foot {
+          margin-top: 18px;
+          color: var(--muted);
+          font-family: var(--font-mono);
+          font-size: 12px;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+        }
+
+        .s7-foot b {
+          color: var(--text-soft);
+          font-weight: 400;
+        }
+
+        .s7-rule {
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          width: 1280px;
+          height: 1px;
+          margin-left: -640px;
+          margin-top: 40px;
+          background: linear-gradient(90deg, transparent, var(--border-strong) 18%, var(--border-strong) 82%, transparent);
+          transform-origin: center center;
+          opacity: 0.5;
+        }
+      </style>
+
+      <div data-hf-id="hf-fyz3" id="scene-07-outro" data-composition-id="scene-07-outro" data-width="1920" data-height="1080">
+        <div data-hf-id="hf-mrjb" class="s7-stage">
+          <div data-hf-id="hf-yi2q" class="s7-ghost" data-layout-ignore data-layout-allow-overflow data-layout-allow-occlusion>Certain</div>
+          <div data-hf-id="hf-nfok" class="s7-rule" id="s7-rule"></div>
+
+          <div data-hf-id="hf-bb85" class="s7-lockup">
+            <div data-hf-id="hf-oxd2" class="s7-mark-wrap" id="s7-mark-wrap">
+              <div data-hf-id="hf-01fm" class="s7-mark-glow" id="s7-mark-glow" data-layout-allow-overflow></div>
+              <div data-hf-id="hf-96xu" class="s7-pulse" id="s7-pulse"></div>
+              <svg data-hf-id="hf-0hwm" class="s7-orbit" viewBox="0 0 358 358" fill="none" aria-hidden="true" data-layout-allow-overflow>
+                <g data-hf-id="hf-bxlb" id="s7-orbit-spin">
+                  <circle data-hf-id="hf-mc9r" cx="179" cy="179" r="176" stroke="rgba(184,255,92,0.17)" stroke-width="1" stroke-dasharray="2 10" />
+                  <circle data-hf-id="hf-t8gr" cx="179" cy="179" r="142" stroke="rgba(92,225,230,0.12)" stroke-width="1" stroke-dasharray="1 14" />
+                </g>
+              </svg>
+              <svg data-hf-id="hf-hvw2" class="s7-mark" viewBox="0 0 226 226" fill="none">
+                <defs data-hf-id="hf-mh0t">
+                  <linearGradient data-hf-id="hf-qm5l" id="s7-mark-grad" x1="8" y1="8" x2="218" y2="218" gradientUnits="userSpaceOnUse">
+                    <stop data-hf-id="hf-d4ei" stop-color="#B8FF5C" />
+                    <stop data-hf-id="hf-f6pg" offset="1" stop-color="#5CE1E6" />
+                  </linearGradient>
+                </defs>
+                <rect data-hf-id="hf-j3oh" x="3" y="3" width="220" height="220" rx="62" fill="url(#s7-mark-grad)" />
+                <rect data-hf-id="hf-fcsg" x="4.5" y="4.5" width="217" height="217" rx="60.5" stroke="rgba(255,255,255,0.38)" stroke-width="1.2" />
+                <path data-hf-id="hf-fron"
+                  id="s7-stroke-a"
+                  d="M68 68L158 158"
+                  pathLength="1"
+                  stroke="#061008"
+                  stroke-width="21"
+                  stroke-linecap="round"
+                  stroke-dasharray="1"
+                  stroke-dashoffset="1"
+                />
+                <path data-hf-id="hf-agx8"
+                  id="s7-stroke-b"
+                  d="M158 68L68 158"
+                  pathLength="1"
+                  stroke="#061008"
+                  stroke-width="21"
+                  stroke-linecap="round"
+                  stroke-dasharray="1"
+                  stroke-dashoffset="1"
+                />
+              </svg>
+            </div>
+
+            <div data-hf-id="hf-tbe8" class="s7-brand" aria-label="Xonus">
+              <span data-hf-id="hf-cuij">X</span><span data-hf-id="hf-h7vu">O</span><span data-hf-id="hf-gtkt">N</span><span data-hf-id="hf-eu1o">U</span><span data-hf-id="hf-fmnq">S</span>
+            </div>
+
+            <p data-hf-id="hf-ppyr" class="s7-tagline">
+              Decisions that stop the moment they're <span data-hf-id="hf-udxr" class="accent">certain.</span>
+            </p>
+
+            <div data-hf-id="hf-zr56" class="s7-cta" id="s7-cta">
+              <span data-hf-id="hf-xvy3" class="s7-cta-label"><span data-hf-id="hf-vw6r">Start</span><span data-hf-id="hf-cdtl">building</span></span>
+              <span data-hf-id="hf-mcmu" class="s7-cta-code">npm i <b data-hf-id="hf-mv9u">xonus</b></span>
+              <span data-hf-id="hf-dbw3" class="s7-copy">
+                <svg data-hf-id="hf-ulu9" viewBox="0 0 24 24">
+                  <rect data-hf-id="hf-yoz6" x="8" y="8" width="11" height="12" rx="2" />
+                  <path data-hf-id="hf-7enx" d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h2" />
+                </svg>
+              </span>
+            </div>
+
+            <div data-hf-id="hf-cmty" class="s7-community" id="s7-community">
+              <span data-hf-id="hf-cntr" class="s7-community-item">
+                <svg data-hf-id="hf-ghtb" class="s7-gh" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.7-3.88-1.54-3.88-1.54-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.1 11.1 0 0 1 5.79 0c2.21-1.49 3.18-1.18 3.18-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.7 5.39-5.26 5.68.41.35.78 1.05.78 2.12 0 1.53-.01 2.76-.01 3.14 0 .31.21.68.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z" />
+                </svg>
+                <span><b data-hf-id="hf-cntb">Contribute</b> github.com/urkiddennn/Xonus</span>
+              </span>
+              <span data-hf-id="hf-cdiv" class="s7-community-divider"></span>
+              <span data-hf-id="hf-spns" class="s7-community-item donate">
+                <svg data-hf-id="hf-hart" class="s7-heart" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z" />
+                </svg>
+                <span><b data-hf-id="hf-sptb">Sponsor</b> github.com/sponsors/urkiddennn</span>
+              </span>
+            </div>
+
+            <div data-hf-id="hf-em40" class="s7-foot"><b data-hf-id="hf-t4mu">MIT licensed</b> &nbsp;·&nbsp; TypeScript &nbsp;·&nbsp; ESM + CJS</div>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        const tl = gsap.timeline({ paused: true });
+
+        tl.fromTo('#s7-stage', { opacity: 0 }, { opacity: 1, duration: 0.3, ease: 'power1.out' }, 0);
+        tl.fromTo('#s7-mark-wrap', { scale: 0.72, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.85, ease: 'expo.out' }, 0.15);
+        tl.fromTo('#s7-stroke-a', { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 0.45, ease: 'power2.inOut' }, 0.45);
+        tl.fromTo('#s7-stroke-b', { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 0.45, ease: 'power2.inOut' }, 0.55);
+        tl.fromTo('#s7-orbit-spin', { rotation: 0, transformOrigin: '50% 50%' }, { rotation: 22, duration: 4, ease: 'none' }, 0.2);
+        tl.fromTo('#s7-mark-glow', { scale: 0.85, opacity: 0.45 }, { scale: 1.08, opacity: 1, duration: 1.2, ease: 'sine.inOut', yoyo: true, repeat: 1 }, 0.75);
+        tl.fromTo('#s7-rule', { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 0.5, duration: 1.1, ease: 'power3.inOut' }, 0.55);
+
+        tl.fromTo(
+          '.s7-brand span',
+          { y: 54, opacity: 0, rotationX: -52, transformPerspective: 900 },
+          { y: 0, opacity: 1, rotationX: 0, duration: 0.75, ease: 'expo.out', stagger: 0.055 },
+          0.7
+        );
+
+        tl.fromTo('.s7-tagline', { y: 22, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: 'power3.out' }, 1.25);
+        tl.fromTo('#s7-cta', { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: 'power3.out' }, 1.72);
+        tl.fromTo('#s7-community', { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: 'power3.out' }, 2.08);
+        tl.fromTo(
+          '.s7-community-item svg',
+          { scale: 0.65, opacity: 0, transformOrigin: '50% 50%' },
+          { scale: 1, opacity: 1, duration: 0.35, ease: 'back.out(1.8)', stagger: 0.08 },
+          2.18
+        );
+        tl.fromTo('.s7-foot', { opacity: 0 }, { opacity: 1, duration: 0.5, ease: 'power2.out' }, 2.38);
+
+        tl.fromTo('#s7-pulse', { scale: 0.55, opacity: 0 }, { scale: 1.9, opacity: 0, duration: 1.05, ease: 'power2.out' }, 2.68);
+
+        tl.to('#s7-stage', { scale: 1.03, opacity: 0, filter: 'blur(4px)', duration: 0.45, ease: 'power2.in' }, 3.42);
+
+        window.__timelines['scene-07-outro'] = tl;
+      </script>
+    </template>
+  </body>
+</html>

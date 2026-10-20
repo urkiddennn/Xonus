@@ -31,7 +31,7 @@ export class XonusInputError extends XonusError {
   }
 }
 
-/** A failure returned by the Gemini API or the network layer. */
+/** A failure returned by the model provider or the network layer. */
 export class XonusApiError extends XonusError {
   readonly status?: number;
 

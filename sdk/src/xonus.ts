@@ -1,8 +1,4 @@
-import { GoogleGenAI } from '@google/genai';
-import type {
-  GenerateContentConfig,
-  GenerateContentResponse,
-} from '@google/genai';
+import type { GenerateContentConfig } from '@google/genai';
 import {
   XonusAbortError,
   XonusConfigError,
@@ -19,6 +15,9 @@ import {
 } from './logprobs';
 import type { LabelDistribution } from './logprobs';
 import { buildDeliberatePrompt, buildFastPrompt, optionLetters } from './prompt';
+import type { BuiltPrompt } from './prompt';
+import { AnthropicProvider, GeminiProvider, OpenAIProvider } from './providers';
+import type { ProviderName, ProviderRequest, XonusProvider } from './providers';
 import type {
   DecideBatchOptions,
   DecisionRequest,
@@ -34,17 +33,19 @@ import {
 } from './utils';
 
 export const DEFAULT_MODEL = 'gemini-2.5-flash';
+export const DEFAULT_OPENAI_MODEL = 'gpt-4o-mini';
+export const DEFAULT_ANTHROPIC_MODEL = 'claude-3-5-haiku-latest';
 export const DEFAULT_TAU = 6.0;
 export const DEFAULT_ANSWER_MASS_GATE = 0.99;
 
 const FAST_MAX_OUTPUT_TOKENS = 32;
-const FAST_THINKING_BUDGET = 0;
 
 interface ResolvedOptions {
   modelName: string;
   tau: number;
   answerMassGate: number;
   topLogprobs: number;
+  logprobs: boolean;
   maxOutputTokens: number;
   temperature: number;
   escalate: boolean;
@@ -52,6 +53,7 @@ interface ResolvedOptions {
   timeoutMs: number;
   maxRetries: number;
   generationConfig?: GenerateContentConfig;
+  providerOptions?: Record<string, unknown>;
 }
 
 interface PassEvidence {
@@ -80,32 +82,51 @@ interface DeliberateResult {
  *    `false`, so callers can route to a human or a stronger model.
  */
 export class Xonus {
-  private readonly client: GoogleGenAI;
+  private readonly provider: XonusProvider;
   private readonly options: ResolvedOptions;
 
   constructor(config: XonusConfig) {
-    this.options = resolveOptions(config);
-    this.client = config.client ?? new GoogleGenAI({ apiKey: config.apiKey });
+    this.provider = resolveProvider(config);
+    this.options = resolveOptions(config, this.provider);
   }
 
-  /** Build a client from `XONUS_API_KEY`, `GEMINI_API_KEY`, or `GOOGLE_API_KEY`. */
-  static fromEnv(
-    overrides: Omit<Partial<XonusConfig>, 'apiKey'> & { apiKey?: string } = {},
-  ): Xonus {
+  /**
+   * Build a client from the environment.
+   *
+   * Provider selection: `XONUS_PROVIDER`, then `GEMINI_API_KEY` /
+   * `GOOGLE_API_KEY`, `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`. Keys can also be
+   * supplied through `XONUS_API_KEY`. Model and base URL come from
+   * `XONUS_MODEL` and `XONUS_BASE_URL` when present.
+   */
+  static fromEnv(overrides: Partial<XonusConfig> = {}): Xonus {
     const env = typeof process !== 'undefined' ? process.env : undefined;
-    const apiKey =
-      overrides.apiKey ??
-      env?.XONUS_API_KEY ??
-      env?.GEMINI_API_KEY ??
-      env?.GOOGLE_API_KEY;
+    const provider = overrides.provider ?? providerFromEnv(env);
+    const rawProviderName = typeof provider === 'string' ? provider : undefined;
+    const providerName =
+      rawProviderName === 'openai-compatible'
+        ? 'openai'
+        : rawProviderName === 'google'
+          ? 'gemini'
+          : rawProviderName;
+    const providerKey =
+      providerName === 'openai'
+        ? env?.OPENAI_API_KEY
+        : providerName === 'anthropic'
+          ? env?.ANTHROPIC_API_KEY
+          : providerName === 'gemini'
+            ? env?.GEMINI_API_KEY ?? env?.GOOGLE_API_KEY
+            : undefined;
+    const apiKey = overrides.apiKey ?? firstNonEmpty(env?.XONUS_API_KEY, providerKey);
+    const modelName = overrides.modelName ?? env?.XONUS_MODEL;
+    const baseURL = overrides.baseURL ?? env?.XONUS_BASE_URL;
 
-    if (!apiKey && !overrides.client) {
-      throw new XonusConfigError(
-        'No API key found. Pass `apiKey`, set XONUS_API_KEY, GEMINI_API_KEY, or GOOGLE_API_KEY.',
-      );
-    }
-
-    return new Xonus({ ...overrides, apiKey: apiKey ?? '' });
+    return new Xonus({
+      ...overrides,
+      provider,
+      ...(apiKey !== undefined ? { apiKey } : {}),
+      ...(modelName ? { modelName } : {}),
+      ...(baseURL ? { baseURL } : {}),
+    });
   }
 
   /** Decide one multiple-choice question. */
@@ -212,28 +233,13 @@ export class Xonus {
 
     const response = await withRetry(
       () =>
-        this.client.models.generateContent({
-          model: this.options.modelName,
-          contents: prompt.contents,
-          config: {
-            ...this.generationConfig(),
-            systemInstruction: prompt.systemInstruction,
-            temperature: 0,
-            maxOutputTokens: FAST_MAX_OUTPUT_TOKENS,
-            candidateCount: 1,
-            responseLogprobs: true,
-            logprobs: this.options.topLogprobs,
-            thinkingConfig: this.thinkingConfig(),
-            abortSignal: signal,
-          },
-        }),
+        this.provider.generate(
+          this.providerRequest(prompt, 0, FAST_MAX_OUTPUT_TOKENS, signal),
+        ),
       { retries: this.options.maxRetries, signal },
     );
 
-    const text = responseText(response);
-    const logprobs = response.candidates?.[0]?.logprobsResult;
-    const steps = logprobs?.topCandidates ?? [];
-    const chosen = logprobs?.chosenCandidates ?? [];
+    const text = response.text;
 
     // The first token is not always the letter: some tokenizers emit a leading
     // space or markdown marker first. Use the first step whose *chosen* token
@@ -244,12 +250,9 @@ export class Xonus {
       margin: 0,
       top: null,
     };
-    for (let index = 0; index < steps.length; index += 1) {
-      const step = steps[index];
-      if (!step) continue;
-
-      const chosenLetter = normalizeToken(chosen[index]?.token);
-      if (chosen.length > 0 && (!chosenLetter || !letters.includes(chosenLetter))) {
+    for (const step of response.steps) {
+      const chosenLetter = normalizeToken(step.chosenToken);
+      if (step.chosenToken && (!chosenLetter || !letters.includes(chosenLetter))) {
         continue;
       }
 
@@ -290,21 +293,14 @@ export class Xonus {
 
     const stream = await withRetry(
       () =>
-        this.client.models.generateContentStream({
-          model: this.options.modelName,
-          contents: prompt.contents,
-          config: {
-            ...this.generationConfig(),
-            systemInstruction: prompt.systemInstruction,
-            temperature: this.options.temperature,
-            maxOutputTokens: this.options.maxOutputTokens,
-            candidateCount: 1,
-            responseLogprobs: true,
-            logprobs: this.options.topLogprobs,
-            thinkingConfig: this.thinkingConfig(),
-            abortSignal: streamSignal,
-          },
-        }),
+        this.provider.stream(
+          this.providerRequest(
+            prompt,
+            this.options.temperature,
+            this.options.maxOutputTokens,
+            streamSignal,
+          ),
+        ),
       { retries: this.options.maxRetries, signal: streamSignal },
     );
 
@@ -314,22 +310,13 @@ export class Xonus {
 
     try {
       for await (const chunk of stream) {
-        const candidate = chunk.candidates?.[0];
-        if (!candidate) continue;
+        text += chunk.text;
 
-        text += candidateText(candidate);
-        const stepLogprobs = candidate.logprobsResult;
-        const steps = stepLogprobs?.topCandidates ?? [];
-        const chosen = stepLogprobs?.chosenCandidates ?? [];
-
-        for (let index = 0; index < steps.length; index += 1) {
-          const step = steps[index];
-          if (!step) continue;
-
+        for (const step of chunk.steps) {
           const distribution = extractLabelDistribution(step, letters);
           if (distribution.mass <= 0 || !distribution.top) continue;
 
-          const chosenLetter = normalizeToken(chosen[index]?.token) ?? distribution.top;
+          const chosenLetter = normalizeToken(step.chosenToken) ?? distribution.top;
           if (!letters.includes(chosenLetter)) continue;
 
           labelSteps.push({ letter: chosenLetter, distribution });
@@ -402,14 +389,14 @@ export class Xonus {
 
     if (!letter) {
       throw new XonusParseError(
-        'Xonus received no usable option from Gemini. The response may have been blocked, ' +
+        'Xonus received no usable option from the model. The response may have been blocked, ' +
           'or the model may not support logprobs.',
       );
     }
 
     const optionIndex = letters.indexOf(letter);
     if (optionIndex < 0) {
-      throw new XonusParseError(`Gemini returned an out-of-range option letter: ${letter}.`);
+      throw new XonusParseError(`The model returned an out-of-range option letter: ${letter}.`);
     }
 
     const probabilities: Record<string, number> = {};
@@ -442,6 +429,7 @@ export class Xonus {
       earlyStopped,
       passes: escalated ? 2 : 1,
       source: evidence.source,
+      provider: this.provider.id,
       model: this.options.modelName,
       latencyMs: Date.now() - startedAt,
       ...(rationale ? { rationale } : {}),
@@ -449,8 +437,29 @@ export class Xonus {
     };
   }
 
-  private thinkingConfig(): { thinkingBudget: number } | GenerateContentConfig['thinkingConfig'] {
-    return this.options.generationConfig?.thinkingConfig ?? { thinkingBudget: FAST_THINKING_BUDGET };
+  private providerRequest(
+    prompt: BuiltPrompt,
+    temperature: number,
+    maxOutputTokens: number,
+    signal: AbortSignal,
+  ): ProviderRequest {
+    const generationConfig = this.generationConfig();
+    return {
+      model: this.options.modelName,
+      systemInstruction: prompt.systemInstruction,
+      prompt: prompt.contents,
+      temperature,
+      maxOutputTokens,
+      topLogprobs: this.options.topLogprobs,
+      logprobs: this.options.logprobs,
+      signal,
+      ...(Object.keys(generationConfig).length > 0
+        ? { generationConfig: generationConfig as Record<string, unknown> }
+        : {}),
+      ...(this.options.providerOptions
+        ? { providerOptions: this.options.providerOptions }
+        : {}),
+    };
   }
 
   private generationConfig(): GenerateContentConfig {
@@ -492,18 +501,112 @@ export function createXonus(config: XonusConfig): Xonus {
   return new Xonus(config);
 }
 
-function resolveOptions(config: XonusConfig): ResolvedOptions {
+function resolveProvider(config: XonusConfig): XonusProvider {
   if (!config || typeof config !== 'object') {
     throw new XonusConfigError('Xonus requires a configuration object.');
   }
 
-  if (!config.client && !isNonEmptyString(config.apiKey)) {
-    throw new XonusConfigError('`apiKey` is required. Get one at https://aistudio.google.com/apikey');
+  const configured = config.provider;
+  if (configured && typeof configured === 'object') {
+    if (!isNonEmptyString(configured.id)) {
+      throw new XonusConfigError('A custom provider needs a non-empty `id`.');
+    }
+    if (
+      typeof configured.generate !== 'function' ||
+      typeof configured.stream !== 'function'
+    ) {
+      throw new XonusConfigError(
+        'A custom provider must implement `generate()` and `stream()`.',
+      );
+    }
+    return configured;
   }
 
-  const modelName = config.modelName ?? DEFAULT_MODEL;
+  switch (normalizeProviderName(configured ?? 'gemini')) {
+    case 'gemini':
+      return new GeminiProvider({ apiKey: config.apiKey, client: config.client });
+    case 'openai':
+      return new OpenAIProvider({
+        apiKey: config.apiKey,
+        baseURL: config.baseURL,
+        headers: config.headers,
+        fetch: config.fetch,
+      });
+    case 'anthropic':
+      return new AnthropicProvider({
+        apiKey: config.apiKey,
+        baseURL: config.baseURL,
+        headers: config.headers,
+        fetch: config.fetch,
+      });
+  }
+}
+
+function normalizeProviderName(name: string): 'gemini' | 'openai' | 'anthropic' {
+  switch (name) {
+    case 'gemini':
+    case 'google':
+      return 'gemini';
+    case 'openai':
+    case 'openai-compatible':
+      return 'openai';
+    case 'anthropic':
+      return 'anthropic';
+    default:
+      throw new XonusConfigError(
+        `Unsupported provider "${name}". Use "gemini", "openai", "anthropic", ` +
+          'or pass a custom provider object.',
+      );
+  }
+}
+
+function providerFromEnv(
+  env: Record<string, string | undefined> | undefined,
+): ProviderName {
+  const explicit = env?.XONUS_PROVIDER?.trim();
+  if (explicit) return explicit as ProviderName;
+  if (env?.GEMINI_API_KEY || env?.GOOGLE_API_KEY) return 'gemini';
+  if (env?.OPENAI_API_KEY) return 'openai';
+  if (env?.ANTHROPIC_API_KEY) return 'anthropic';
+  return 'gemini';
+}
+
+function resolveOptions(config: XonusConfig, provider: XonusProvider): ResolvedOptions {
+  if (!config || typeof config !== 'object') {
+    throw new XonusConfigError('Xonus requires a configuration object.');
+  }
+
+  const customProvider = Boolean(config.provider) && typeof config.provider === 'object';
+
+  if (!customProvider && provider.id === 'gemini') {
+    if (!config.client && !isNonEmptyString(config.apiKey)) {
+      throw new XonusConfigError(
+        'No API key found. Pass `apiKey` or set XONUS_API_KEY / GEMINI_API_KEY / GOOGLE_API_KEY.',
+      );
+    }
+  } else if (!customProvider && (provider.id === 'openai' || provider.id === 'anthropic')) {
+    if (!isNonEmptyString(config.apiKey) && !isNonEmptyString(config.baseURL)) {
+      throw new XonusConfigError(
+        `No credentials found for the ${provider.id} provider. Pass \`apiKey\`, ` +
+          'set the matching environment variable, or set `baseURL` for a local server.',
+      );
+    }
+  }
+
+  if (config.client && provider.id !== 'gemini') {
+    throw new XonusConfigError(
+      '`client` is Gemini-only. Use `fetch` or a custom provider for other backends.',
+    );
+  }
+
+  const modelName = config.modelName ?? defaultModelFor(provider.id);
   if (!isNonEmptyString(modelName)) {
     throw new XonusConfigError('`modelName` must be a non-empty string.');
+  }
+
+  const logprobs = config.logprobs ?? true;
+  if (typeof logprobs !== 'boolean') {
+    throw new XonusConfigError('`logprobs` must be a boolean.');
   }
 
   const tau = config.tau ?? DEFAULT_TAU;
@@ -547,12 +650,22 @@ function resolveOptions(config: XonusConfig): ResolvedOptions {
   if (config.includeRationale !== undefined && typeof config.includeRationale !== 'boolean') {
     throw new XonusConfigError('`includeRationale` must be a boolean.');
   }
+  if (config.baseURL !== undefined && !isNonEmptyString(config.baseURL)) {
+    throw new XonusConfigError('`baseURL` must be a non-empty string when provided.');
+  }
+  if (config.headers !== undefined && !isPlainObject(config.headers)) {
+    throw new XonusConfigError('`headers` must be an object of string values.');
+  }
+  if (config.providerOptions !== undefined && !isPlainObject(config.providerOptions)) {
+    throw new XonusConfigError('`providerOptions` must be an object.');
+  }
 
   return {
     modelName,
     tau,
     answerMassGate,
     topLogprobs,
+    logprobs,
     maxOutputTokens,
     temperature,
     escalate: config.escalate ?? true,
@@ -560,7 +673,14 @@ function resolveOptions(config: XonusConfig): ResolvedOptions {
     timeoutMs,
     maxRetries,
     ...(config.generationConfig ? { generationConfig: config.generationConfig } : {}),
+    ...(config.providerOptions ? { providerOptions: config.providerOptions } : {}),
   };
+}
+
+function defaultModelFor(provider: string): string {
+  if (provider === 'openai') return DEFAULT_OPENAI_MODEL;
+  if (provider === 'anthropic') return DEFAULT_ANTHROPIC_MODEL;
+  return DEFAULT_MODEL;
 }
 
 function validateRequest(request: DecisionRequest): DecisionRequest {
@@ -610,26 +730,18 @@ function validateRequest(request: DecisionRequest): DecisionRequest {
   };
 }
 
-function responseText(response: GenerateContentResponse): string {
-  const candidate = response.candidates?.[0];
-  return candidate ? candidateText(candidate) : '';
-}
-
-function candidateText(candidate: {
-  content?: { parts?: Array<{ text?: string; thought?: boolean }> };
-}): string {
-  return (
-    candidate.content?.parts
-      ?.filter((part) => !part.thought)
-      .map((part) => part.text ?? '')
-      .join('') ?? ''
-  );
-}
-
 function hasFinalAnswerProtocol(text: string, letter: string): boolean {
   return new RegExp(`FINAL\\s+ANSWER\\s*[:\\-][^A-Za-z]*${letter}\\b`, 'i').test(text);
 }
 
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
 function isNonEmptyString(value: unknown): value is string {
   return typeof value === 'string' && value.trim().length > 0;
+}
+
+function firstNonEmpty(...values: Array<string | undefined>): string | undefined {
+  return values.find((value): value is string => isNonEmptyString(value));
 }

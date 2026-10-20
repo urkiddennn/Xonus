@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    <template>
+      <style>
+        #scene-05-backends {
+          position: absolute;
+          inset: 0;
+          width: 100%;
+          height: 100%;
+          overflow: hidden;
+        }
+
+        .s5-stage {
+          position: absolute;
+          inset: 0;
+        }
+
+        .s5-ghost {
+          position: absolute;
+          left: -36px;
+          top: 96px;
+          font-family: var(--font-display);
+          font-size: 300px;
+          font-weight: 700;
+          letter-spacing: -0.07em;
+          line-height: 0.78;
+          color: rgba(255, 255, 255, 0.023);
+          white-space: nowrap;
+          text-transform: uppercase;
+        }
+
+        .s5-kicker {
+          position: absolute;
+          left: 140px;
+          top: 126px;
+        }
+
+        .s5-headline {
+          position: absolute;
+          left: 140px;
+          top: 204px;
+          width: 760px;
+          font-size: 100px;
+        }
+
+        .s5-subcopy {
+          position: absolute;
+          left: 140px;
+          top: 448px;
+          width: 660px;
+          font-size: 26px;
+        }
+
+        .s5-swap {
+          position: absolute;
+          left: 140px;
+          top: 640px;
+          width: 660px;
+          padding: 20px 22px;
+          border: 1px solid var(--border);
+          border-radius: 16px;
+          background: rgba(255, 255, 255, 0.02);
+        }
+
+        .s5-swap-head {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 16px;
+          margin-bottom: 18px;
+          color: var(--muted);
+          font-family: var(--font-mono);
+          font-size: 10px;
+          letter-spacing: 0.14em;
+          text-transform: uppercase;
+        }
+
+        .s5-swap-head span:last-child {
+          color: var(--accent);
+        }
+
+        .s5-swap-row {
+          display: flex;
+          align-items: center;
+          gap: 14px;
+          color: var(--text-soft);
+          font-family: var(--font-mono);
+          font-size: 19px;
+          line-height: 1.5;
+        }
+
+        .s5-swap-row .kw {
+          color: var(--violet);
+        }
+
+        .s5-swap-row .str {
+          color: var(--accent);
+        }
+
+        .s5-swap-row .str.alt {
+          color: var(--cyan);
+        }
+
+        .s5-swap-arrow {
+          color: var(--faint);
+          font-size: 14px;
+        }
+
+        .s5-swap-check {
+          margin-left: auto;
+          display: inline-flex;
+          align-items: center;
+          gap: 7px;
+          color: var(--accent);
+          font-size: 11px;
+          letter-spacing: 0.06em;
+        }
+
+        .s5-swap-check i {
+          display: grid;
+          place-items: center;
+          width: 16px;
+          height: 16px;
+          border: 1px solid rgba(184, 255, 92, 0.45);
+          border-radius: 50%;
+          font-size: 9px;
+          font-style: normal;
+        }
+
+        .s5-map {
+          position: absolute;
+          left: 880px;
+          top: 158px;
+          width: 900px;
+          height: 820px;
+        }
+
+        .s5-lines {
+          position: absolute;
+          inset: 0;
+          width: 900px;
+          height: 820px;
+          overflow: visible;
+        }
+
+        .s5-link {
+          stroke: rgba(255, 255, 255, 0.13);
+          stroke-width: 1.5;
+          fill: none;
+        }
+
+        .s5-core {
+          position: absolute;
+          left: 350px;
+          top: 305px;
+          width: 200px;
+          height: 200px;
+          z-index: 3;
+        }
+
+        .s5-core-glow {
+          position: absolute;
+          inset: -76px;
+          border-radius: 50%;
+          background: radial-gradient(circle, rgba(184, 255, 92, 0.26), rgba(92, 225, 230, 0.05) 46%, transparent 70%);
+          filter: blur(8px);
+        }
+
+        .s5-orbit {
+          position: absolute;
+          left: 288px;
+          top: 243px;
+          width: 324px;
+          height: 324px;
+          z-index: 2;
+        }
+
+        .s5-core-mark {
+          position: relative;
+          width: 200px;
+          height: 200px;
+          filter: drop-shadow(0 24px 60px rgba(0, 0, 0, 0.6));
+        }
+
+        .s5-core-label {
+          position: absolute;
+          left: 300px;
+          top: 526px;
+          width: 300px;
+          text-align: center;
+          color: var(--accent);
+          font-family: var(--font-mono);
+          font-size: 10px;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
+          z-index: 3;
+        }
+
+        .s5-contract {
+          position: absolute;
+          left: 285px;
+          top: 562px;
+          width: 330px;
+          z-index: 3;
+          display: flex;
+          justify-content: center;
+        }
+
+        .s5-node {
+          position: absolute;
+          z-index: 4;
+          display: inline-flex;
+          align-items: center;
+          gap: 10px;
+          padding: 11px 16px;
+          border: 1px solid var(--border);
+          border-radius: 999px;
+          background: rgba(10, 15, 23, 0.92);
+          box-shadow: 0 10px 34px rgba(0, 0, 0, 0.34);
+          color: var(--text-soft);
+          font-family: var(--font-mono);
+          font-size: 14px;
+          letter-spacing: 0.02em;
+          white-space: nowrap;
+        }
+
+        .s5-node i {
+          width: 7px;
+          height: 7px;
+          flex: none;
+          border-radius: 50%;
+          background: currentColor;
+          box-shadow: 0 0 8px currentColor;
+        }
+
+        .s5-node.gemini {
+          left: 70px;
+          top: 90px;
+          color: var(--cyan);
+        }
+
+        .s5-node.openai {
+          left: 560px;
+          top: 52px;
+          color: var(--accent);
+        }
+
+        .s5-node.anthropic {
+          left: 670px;
+          top: 210px;
+          color: #f4a261;
+        }
+
+        .s5-node.openrouter {
+          left: 680px;
+          top: 470px;
+          color: var(--violet);
+        }
+
+        .s5-node.groq {
+          left: 540px;
+          top: 660px;
+          color: var(--violet);
+        }
+
+        .s5-node.ollama {
+          left: 240px;
+          top: 700px;
+          color: var(--muted);
+        }
+
+        .s5-node.vllm {
+          left: 50px;
+          top: 520px;
+          color: var(--muted);
+        }
+
+        .s5-node.custom {
+          left: 50px;
+          top: 220px;
+          color: var(--text);
+        }
+
+        .s5-node.openai,
+        .s5-node.custom {
+          border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .s5-node.openai {
+          border-color: rgba(184, 255, 92, 0.28);
+        }
+      </style>
+
+      <div data-hf-id="hf-fksn" id="scene-05-backends" data-composition-id="scene-05-backends" data-width="1920" data-height="1080">
+        <div data-hf-id="hf-2ssa" class="s5-stage" id="s5-stage">
+          <div data-hf-id="hf-jcty" class="s5-ghost" data-layout-ignore data-layout-allow-overflow data-layout-allow-occlusion>Backend</div>
+          <p data-hf-id="hf-nn6u" class="kicker s5-kicker">05 / The interface — any backend</p>
+
+          <h2 data-hf-id="hf-kdoe" class="headline s5-headline">
+            <span data-hf-id="hf-00jh" class="line">One engine.</span>
+            <span data-hf-id="hf-dhd9" class="line gradient">Any backend.</span>
+          </h2>
+
+          <p data-hf-id="hf-q4f0" class="subcopy s5-subcopy">
+            Keep the model you already trust. Gemini, OpenAI, Anthropic, or any compatible endpoint —
+            one decision contract, one call site.
+          </p>
+
+          <div data-hf-id="hf-qu5q" class="s5-swap" id="s5-swap">
+            <div data-hf-id="hf-sprf" class="s5-swap-head">
+              <span data-hf-id="hf-5jf4">Same call site</span>
+              <span data-hf-id="hf-z9n7">Same decision</span>
+            </div>
+            <div data-hf-id="hf-jbg3" class="s5-swap-row">
+              <span data-hf-id="hf-e7b5"><span data-hf-id="hf-b4xm" class="kw">provider</span>: <span data-hf-id="hf-hkw6" class="str">'openai'</span></span>
+              <span data-hf-id="hf-apw3" class="s5-swap-arrow">→</span>
+              <span data-hf-id="hf-iwjg" id="s5-alt-provider"><span data-hf-id="hf-s9cu" class="kw">provider</span>: <span data-hf-id="hf-pxcl" class="str alt">'anthropic'</span></span>
+              <span data-hf-id="hf-rg0f" class="s5-swap-check" id="s5-swap-check"><i data-hf-id="hf-q7i5">✓</i>locked</span>
+            </div>
+          </div>
+
+          <div data-hf-id="hf-ijp5" class="s5-map">
+            <svg data-hf-id="hf-oqtu" class="s5-lines" viewBox="0 0 900 820" fill="none" aria-hidden="true" data-layout-ignore>
+              <path data-hf-id="hf-fbne" class="s5-link" d="M 145 115 C 250 180, 330 280, 450 405" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" />
+              <path data-hf-id="hf-ys2p" class="s5-link" d="M 640 77 C 570 150, 510 280, 450 405" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" />
+              <path data-hf-id="hf-z6jx" class="s5-link" d="M 760 235 C 660 270, 550 330, 450 405" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" />
+              <path data-hf-id="hf-yclp" class="s5-link" d="M 775 495 C 660 480, 550 445, 450 405" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" />
+              <path data-hf-id="hf-x4qv" class="s5-link" d="M 610 685 C 550 590, 500 500, 450 405" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" />
+              <path data-hf-id="hf-mwbr" class="s5-link" d="M 310 725 C 350 610, 400 500, 450 405" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" />
+              <path data-hf-id="hf-v3qg" class="s5-link" d="M 110 545 C 230 500, 350 450, 450 405" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" />
+              <path data-hf-id="hf-5alr" class="s5-link" d="M 120 245 C 230 290, 350 350, 450 405" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" />
+            </svg>
+
+            <svg data-hf-id="hf-z094" class="s5-orbit" viewBox="0 0 324 324" fill="none" aria-hidden="true" data-layout-allow-overflow>
+              <g data-hf-id="hf-riap" id="s5-orbit-spin">
+                <circle data-hf-id="hf-mbwi" cx="162" cy="162" r="158" stroke="rgba(184,255,92,0.18)" stroke-width="1" stroke-dasharray="2 9" />
+                <circle data-hf-id="hf-4ep4" cx="162" cy="162" r="128" stroke="rgba(92,225,230,0.14)" stroke-width="1" stroke-dasharray="1 13" />
+              </g>
+            </svg>
+
+            <div data-hf-id="hf-fjje" class="s5-core" id="s5-core">
+              <div data-hf-id="hf-3ydm" class="s5-core-glow" id="s5-core-glow"></div>
+              <svg data-hf-id="hf-fi2m" class="s5-core-mark" viewBox="0 0 200 200" fill="none">
+                <defs data-hf-id="hf-mh0t">
+                  <linearGradient data-hf-id="hf-ccvd" id="s5-core-grad" x1="8" y1="8" x2="192" y2="192" gradientUnits="userSpaceOnUse">
+                    <stop data-hf-id="hf-d4ei" stop-color="#B8FF5C" />
+                    <stop data-hf-id="hf-f6pg" offset="1" stop-color="#5CE1E6" />
+                  </linearGradient>
+                </defs>
+                <rect data-hf-id="hf-u22g" x="3" y="3" width="194" height="194" rx="56" fill="url(#s5-core-grad)" />
+                <rect data-hf-id="hf-87m1" x="4.5" y="4.5" width="191" height="191" rx="54.5" stroke="rgba(255,255,255,0.38)" stroke-width="1.2" />
+                <path data-hf-id="hf-laki" d="M60 60l80 80M140 60L60 140" stroke="#061008" stroke-width="18" stroke-linecap="round" />
+              </svg>
+            </div>
+
+            <div data-hf-id="hf-nzka" class="s5-core-label">Decision core</div>
+            <div data-hf-id="hf-08bj" class="s5-contract"><span data-hf-id="hf-qc8t" class="chip accent"><i data-hf-id="hf-wu7o" class="chip-dot"></i>same decision contract</span></div>
+
+            <div data-hf-id="hf-up2w" class="s5-node gemini" id="s5-node-gemini"><i data-hf-id="hf-wt6k"></i>Gemini</div>
+            <div data-hf-id="hf-xytd" class="s5-node openai" id="s5-node-openai"><i data-hf-id="hf-zeb8"></i>OpenAI</div>
+            <div data-hf-id="hf-b935" class="s5-node anthropic" id="s5-node-anthropic"><i data-hf-id="hf-y7e5"></i>Anthropic</div>
+            <div data-hf-id="hf-g0t6" class="s5-node openrouter" id="s5-node-openrouter"><i data-hf-id="hf-ylp6"></i>OpenRouter</div>
+            <div data-hf-id="hf-2yi2" class="s5-node groq" id="s5-node-groq"><i data-hf-id="hf-0l8b"></i>Groq</div>
+            <div data-hf-id="hf-g5b5" class="s5-node ollama" id="s5-node-ollama"><i data-hf-id="hf-0zjc"></i>Ollama</div>
+            <div data-hf-id="hf-ede2" class="s5-node vllm" id="s5-node-vllm"><i data-hf-id="hf-zsm9"></i>vLLM</div>
+            <div data-hf-id="hf-oyl8" class="s5-node custom" id="s5-node-custom"><i data-hf-id="hf-06xa"></i>Custom</div>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        const tl = gsap.timeline({ paused: true });
+
+        tl.fromTo('#s5-stage', { opacity: 0 }, { opacity: 1, duration: 0.3, ease: 'power1.out' }, 0);
+        tl.fromTo('.s5-headline .line', { y: 42, opacity: 0 }, { y: 0, opacity: 1, duration: 0.78, ease: 'expo.out', stagger: 0.09 }, 0.1);
+        tl.fromTo('.s5-subcopy', { y: 22, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: 'power2.out' }, 0.5);
+        tl.fromTo('#s5-swap', { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: 0.65, ease: 'power2.out' }, 0.75);
+        tl.fromTo('#s5-alt-provider', { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out' }, 2.35);
+        tl.fromTo('#s5-swap-check', { scale: 0.8, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.35, ease: 'back.out(1.6)' }, 2.55);
+
+        tl.fromTo('#s5-core', { scale: 0.64, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.8, ease: 'expo.out' }, 0.25);
+        tl.fromTo('#s5-core-glow', { scale: 0.8, opacity: 0.4 }, { scale: 1.1, opacity: 1, duration: 1.25, ease: 'sine.inOut', yoyo: true, repeat: 1 }, 0.8);
+        tl.fromTo('#s5-orbit-spin', { rotation: 0, transformOrigin: '50% 50%' }, { rotation: 24, duration: 4, ease: 'none' }, 0.3);
+        tl.fromTo('#s5-core-label', { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }, 0.75);
+        tl.fromTo('.s5-contract', { scale: 0.9, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.4, ease: 'back.out(1.5)' }, 0.95);
+
+        const links = gsap.utils.toArray('.s5-link');
+        tl.fromTo(links, { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 1.05, ease: 'power2.inOut', stagger: 0.06 }, 0.65);
+
+        const nodes = [
+          ['#s5-node-gemini', 28, 32],
+          ['#s5-node-openai', -38, 24],
+          ['#s5-node-anthropic', -30, 14],
+          ['#s5-node-openrouter', -22, -24],
+          ['#s5-node-groq', 8, -32],
+          ['#s5-node-ollama', 38, -22],
+          ['#s5-node-vllm', 34, 12],
+          ['#s5-node-custom', 32, 22],
+        ];
+        nodes.forEach(([selector, dx, dy], index) => {
+          tl.fromTo(
+            selector,
+            { opacity: 0, scale: 0.86, x: dx, y: dy },
+            { opacity: 1, scale: 1, x: 0, y: 0, duration: 0.48, ease: 'back.out(1.45)' },
+            0.95 + index * 0.075
+          );
+        });
+
+        tl.to('#s5-stage', { scale: 1.06, opacity: 0, filter: 'blur(7px)', duration: 0.5, ease: 'power2.in' }, 3.55);
+
+        window.__timelines['scene-05-backends'] = tl;
+      </script>
+    </template>
+  </body>
+</html>

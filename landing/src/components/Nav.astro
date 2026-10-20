@@ -1,4 +1,7 @@
 ---
+import GitHubIcon from './GitHubIcon.astro';
+import { site } from '../data/site';
+
 interface Props {
   docs?: boolean;
 }
@@ -9,12 +12,14 @@ const links = docs
   ? [
       { href: '/', label: 'Product' },
       { href: '/#how', label: 'How it works' },
+      { href: '#benchmark', label: 'Benchmark' },
       { href: '/docs', label: 'Docs', current: true },
       { href: '#faq', label: 'FAQ' },
     ]
   : [
       { href: '#features', label: 'Features' },
       { href: '#how', label: 'How it works' },
+      { href: '#benchmark', label: 'Benchmark' },
       { href: '/docs', label: 'Docs' },
       { href: '#faq', label: 'FAQ' },
     ];
@@ -47,8 +52,18 @@ const cta = docs
 
     <div class="nav-actions">
       <a
+        class="nav-icon"
+        href={site.repo}
+        target="_blank"
+        rel="noreferrer"
+        aria-label="Xonus on GitHub"
+        title="Contribute on GitHub"
+      >
+        <GitHubIcon size={18} />
+      </a>
+      <a
         class="btn btn-ghost btn-sm"
-        href="https://www.npmjs.com/package/xonus"
+        href={site.npm}
         target="_blank"
         rel="noreferrer"
       >

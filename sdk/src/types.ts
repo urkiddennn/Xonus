@@ -1,17 +1,32 @@
 import type { GenerateContentConfig, GoogleGenAI } from '@google/genai';
+import type { ProviderName, XonusProvider } from './providers/types';
 
 /**
  * Tuning knobs for the Xonus decision engine.
  *
- * Only `apiKey` is required. Everything else has a safe default, which makes
- * Xonus portable across projects: the same call site can run in a script, an
- * API route, a serverless function, or a browser bundle.
+ * Only credentials are required, and the provider is selected with `provider`
+ * (Gemini by default). The same call site works with Gemini, OpenAI-compatible
+ * endpoints, Anthropic, or a custom adapter.
  */
 export interface XonusConfig {
-  /** Google AI Studio API key. Can be omitted only when a custom `client` is supplied. */
+  /**
+   * Model backend. Built-ins: `gemini` (default), `openai` (any
+   * OpenAI-compatible Chat Completions API), and `anthropic`. Pass an
+   * `XonusProvider` object for anything else.
+   */
+  provider?: ProviderName | XonusProvider;
+  /** Provider API key. Required unless a `client`, custom provider, or local `baseURL` is supplied. */
   apiKey?: string;
-  /** Gemini model used for decisions. Default: `gemini-2.5-flash`. */
+  /** API root for OpenAI-compatible and Anthropic providers (include `/v1`). */
+  baseURL?: string;
+  /** Extra HTTP headers sent by the OpenAI-compatible and Anthropic adapters. */
+  headers?: Record<string, string>;
+  /** Custom fetch implementation (proxies, tests, non-standard runtimes). */
+  fetch?: typeof fetch;
+  /** Model name. Default depends on the provider (see the provider docs). */
   modelName?: string;
+  /** Request token logprobs when the provider supports them. Default: `true`. */
+  logprobs?: boolean;
   /** Log-odds early-stop threshold between the top two options. Default: `6.0`. */
   tau?: number;
   /** Minimum probability mass placed on valid options to pass the quality gate. Default: `0.99`. */
@@ -28,11 +43,13 @@ export interface XonusConfig {
   includeRationale?: boolean;
   /** Per-decision deadline in milliseconds. Default: `30000`. */
   timeoutMs?: number;
-  /** Retries for retryable Gemini failures (429, 5xx, network). Default: `2`. */
+  /** Retries for retryable provider failures (429, 5xx, network). Default: `2`. */
   maxRetries?: number;
-  /** Extra Gemini generation config. Xonus always forces logprobs on. */
+  /** Extra Gemini generation config. Ignored by non-Gemini providers. */
   generationConfig?: GenerateContentConfig;
-  /** Pre-built `GoogleGenAI` instance (useful for proxies, tests, or custom auth). */
+  /** Extra vendor-specific request fields for OpenAI-compatible or Anthropic APIs. */
+  providerOptions?: Record<string, unknown>;
+  /** Pre-built `GoogleGenAI` instance (Gemini only; useful for proxies, tests, or custom auth). */
   client?: GoogleGenAI;
 }
 
@@ -44,7 +61,7 @@ export interface DecisionRequest {
   question: string;
   /** Two to twenty-six options. The model picks one of them. */
   options: string[];
-  /** Cancel the decision (and its in-flight Gemini request). */
+  /** Cancel the decision (and its in-flight model request). */
   signal?: AbortSignal;
 }
 
@@ -72,10 +89,12 @@ export interface DecisionResponse {
   escalated: boolean;
   /** Whether generation stopped as soon as the decision was settled. */
   earlyStopped: boolean;
-  /** Number of Gemini passes used (1 or 2). */
+  /** Number of model passes used (1 or 2). */
   passes: 1 | 2;
   /** Where the final evidence came from. */
   source: 'fast' | 'deliberate' | 'text';
+  /** The provider that produced the decision. */
+  provider: string;
   /** The model that produced the decision. */
   model: string;
   /** Wall-clock latency in milliseconds. */

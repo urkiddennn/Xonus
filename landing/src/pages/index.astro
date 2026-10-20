@@ -2,12 +2,15 @@
 import Layout from '../layouts/Layout.astro';
 import Footer from '../components/Footer.astro';
 import CodeBlock from '../components/CodeBlock.astro';
+import GitHubIcon from '../components/GitHubIcon.astro';
+import HeartIcon from '../components/HeartIcon.astro';
 import { snippets } from '../data/snippets';
+import { site } from '../data/site';
 ---
 
 <Layout
   title="Xonus — Decisions that stop the moment they're certain"
-  description="Xonus is a Gemini-native decision engine with log-odds early stopping and answer-mass quality gating. Typed, fast, and honest about uncertainty."
+  description="Xonus is a model-agnostic decision engine with log-odds early stopping and answer-mass quality gating. Typed, fast, and honest about uncertainty."
 >
 
       <!-- ================================================================ Hero -->
@@ -15,15 +18,16 @@ import { snippets } from '../data/snippets';
         <div class="container">
           <div class="hero-grid">
             <div>
-              <span class="eyebrow"><span class="dot"></span> v0.1.0 · Gemini-native</span>
+              <span class="eyebrow"><span class="dot"></span> v0.1.0 · Model-agnostic</span>
               <h1>
                 Decisions that stop the moment they're
                 <span class="gradient-text">certain.</span>
               </h1>
               <p class="hero-copy">
-                Xonus turns Gemini into a calibrated multiple-choice engine. It reads
-                token-level logprobs, stops generating the instant the answer is settled,
-                and refuses to call itself confident when the evidence is thin.
+                Xonus turns any chat model into a calibrated multiple-choice engine.
+                It reads token-level logprobs when the provider exposes them, stops
+                generating the instant the answer is settled, and refuses to call itself
+                confident when the evidence is thin.
               </p>
 
               <div class="hero-actions">
@@ -36,7 +40,7 @@ import { snippets } from '../data/snippets';
               <div class="hero-meta">
                 <span>MIT licensed</span>
                 <span>TypeScript · ESM + CJS</span>
-                <span>One runtime dependency</span>
+                <span>Gemini · OpenAI · Anthropic · custom</span>
               </div>
             </div>
 
@@ -60,6 +64,7 @@ import { snippets } from '../data/snippets';
                 <div class="json">
                   <div>&#123;</div>
                   <div>&nbsp;&nbsp;<span class="k">"decision"</span>: <span class="s">"Billing"</span>,</div>
+                  <div>&nbsp;&nbsp;<span class="k">"provider"</span>: <span class="s">"openai"</span>,</div>
                   <div>&nbsp;&nbsp;<span class="k">"confidence"</span>: <span class="n">0.998</span>,</div>
                   <div>&nbsp;&nbsp;<span class="k">"logOdds"</span>: <span class="n">6.21</span>,</div>
                   <div>&nbsp;&nbsp;<span class="k">"answerMass"</span>: <span class="n">0.999</span>,</div>
@@ -203,11 +208,11 @@ import { snippets } from '../data/snippets';
                   <path d="M12 3v18M5 8l7-5 7 5M5 16l7 5 7-5" />
                 </svg>
               </div>
-              <h3>Provider-native</h3>
+              <h3>Any model, one API</h3>
               <p>
-                No proxy, no sidecar, no sampling loop. Xonus calls Gemini directly with
-                <code>responseLogprobs</code> enabled and uses the logprobs Google
-                already returns.
+                Gemini, OpenAI, Anthropic, or any OpenAI-compatible endpoint — including
+                OpenRouter, Groq, Ollama, and vLLM. A custom adapter is two methods, and
+                the decision protocol stays identical.
               </p>
             </article>
 
@@ -225,6 +230,33 @@ import { snippets } from '../data/snippets';
                 cancelled.
               </p>
             </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- =========================================================== Providers -->
+      <section class="section provider-section" id="providers">
+        <div class="container">
+          <div class="provider-band reveal">
+            <div class="provider-band-copy">
+              <p class="kicker">Bring your own model</p>
+              <h2>One engine. Any backend.</h2>
+              <p>
+                Keep the model you already trust. Xonus normalizes Gemini,
+                OpenAI-compatible APIs, Anthropic, and custom adapters into the same
+                decision contract.
+              </p>
+            </div>
+            <div class="provider-pills" aria-label="Supported model providers">
+              <span><i class="provider-dot gemini"></i>Gemini</span>
+              <span><i class="provider-dot openai"></i>OpenAI</span>
+              <span><i class="provider-dot anthropic"></i>Anthropic</span>
+              <span><i class="provider-dot compatible"></i>OpenRouter</span>
+              <span><i class="provider-dot compatible"></i>Groq</span>
+              <span><i class="provider-dot local"></i>Ollama</span>
+              <span><i class="provider-dot local"></i>vLLM</span>
+              <span><i class="provider-dot custom"></i>Custom</span>
+            </div>
           </div>
         </div>
       </section>
@@ -425,6 +457,287 @@ import { snippets } from '../data/snippets';
         </div>
       </section>
 
+      <!-- ============================================================ Benchmark -->
+      <section class="section benchmark-section" id="benchmark">
+        <div class="container">
+          <div class="section-head reveal">
+            <div>
+              <p class="kicker">Benchmark proof</p>
+              <h2>50 scenarios. Same accuracy. 26% less wall-clock time.</h2>
+              <p>
+                We ran three rotation-sampling strategies across the same
+                50-scenario empirical trial. Xonus read fewer rotations and finished
+                first, without giving up a single point of accuracy.
+              </p>
+            </div>
+            <p class="head-aside">
+              Same model, same prompts, same 50 scenarios. Only the sampling strategy
+              changes.
+            </p>
+          </div>
+
+          <div class="benchmark-card reveal" data-benchmark>
+            <div class="benchmark-card-head">
+              <div>
+                <span class="benchmark-label">Empirical trial · n = 50</span>
+                <h3>Sampling strategy comparison</h3>
+              </div>
+              <span class="benchmark-badge">
+                <span class="benchmark-pulse"></span>
+                Xonus · 1.35× faster
+              </span>
+            </div>
+
+            <div class="benchmark-table" role="table" aria-label="Sampling strategy benchmark">
+              <div class="benchmark-row benchmark-head" role="row">
+                <span role="columnheader">Strategy</span>
+                <span role="columnheader">Accuracy</span>
+                <span role="columnheader">Avg. rotations</span>
+                <span role="columnheader">Total time</span>
+                <span role="columnheader">Relative speedup</span>
+              </div>
+
+              <div class="benchmark-row" role="row" style="--time: 100%; --delay: 0ms">
+                <span class="benchmark-strategy" role="cell">
+                  <strong>van der Corput</strong>
+                  <small>AnyJev baseline</small>
+                </span>
+                <span class="benchmark-metric" role="cell">
+                  <b data-count="90" data-decimals="1" data-suffix="%">90.0%</b>
+                </span>
+                <span class="benchmark-metric" role="cell">
+                  <b data-count="2.33" data-decimals="2">2.33</b>
+                </span>
+                <span class="benchmark-time" role="cell">
+                  <b data-count="51.82" data-decimals="2" data-suffix="s">51.82s</b>
+                  <i class="mini-bar" aria-hidden="true"></i>
+                </span>
+                <span class="benchmark-metric baseline-speed" role="cell">1.00×</span>
+              </div>
+
+              <div class="benchmark-row" role="row" style="--time: 99.96%; --delay: 120ms">
+                <span class="benchmark-strategy" role="cell">
+                  <strong>Golden ratio</strong>
+                  <small>φ sequence</small>
+                </span>
+                <span class="benchmark-metric" role="cell">
+                  <b data-count="90" data-decimals="1" data-suffix="%">90.0%</b>
+                </span>
+                <span class="benchmark-metric" role="cell">
+                  <b data-count="2.42" data-decimals="2">2.42</b>
+                </span>
+                <span class="benchmark-time" role="cell">
+                  <b data-count="51.80" data-decimals="2" data-suffix="s">51.80s</b>
+                  <i class="mini-bar" aria-hidden="true"></i>
+                </span>
+                <span class="benchmark-metric baseline-speed" role="cell">1.00×</span>
+              </div>
+
+              <div class="benchmark-row winner" role="row" style="--time: 73.85%; --delay: 240ms">
+                <span class="benchmark-strategy" role="cell">
+                  <strong>Active dynamic</strong>
+                  <small>Xonus engine</small>
+                </span>
+                <span class="benchmark-metric" role="cell">
+                  <b data-count="90" data-decimals="1" data-suffix="%">90.0%</b>
+                </span>
+                <span class="benchmark-metric" role="cell">
+                  <b data-count="2.22" data-decimals="2">2.22</b>
+                </span>
+                <span class="benchmark-time" role="cell">
+                  <b data-count="38.27" data-decimals="2" data-suffix="s">38.27s</b>
+                  <i class="mini-bar" aria-hidden="true"></i>
+                </span>
+                <span class="benchmark-metric winner-speed" role="cell">1.35×</span>
+              </div>
+            </div>
+
+            <div class="benchmark-foot">
+              <span>Accuracy is identical across all three strategies.</span>
+              <span>Speedup computed from wall-clock total · lower time is better</span>
+            </div>
+          </div>
+
+          <div class="benchmark-stats">
+            <article class="benchmark-stat reveal">
+              <span class="benchmark-stat-value">−13.55s</span>
+              <span class="benchmark-stat-label">saved against the baseline over 50 scenarios</span>
+            </article>
+            <article class="benchmark-stat reveal">
+              <span class="benchmark-stat-value">2.22</span>
+              <span class="benchmark-stat-label">average rotations read per decision</span>
+            </article>
+            <article class="benchmark-stat reveal">
+              <span class="benchmark-stat-value">90.0%</span>
+              <span class="benchmark-stat-label">accuracy retained across every strategy</span>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- =============================================================== AnyJev -->
+      <section class="section anyjev-section" id="anyjev">
+        <div class="container">
+          <div class="section-head reveal">
+            <div>
+              <p class="kicker">Beyond the paper</p>
+              <h2>AnyJev proved the idea. Xonus ships it.</h2>
+              <p>
+                AnyJev is the foundational academic baseline. Xonus is the
+                production-ready engine built for real deployments — four upgrades that
+                turn a research result into infrastructure.
+              </p>
+            </div>
+            <p class="head-aside">Academic baseline vs. production engine.</p>
+          </div>
+
+          <div class="versus reveal">
+            <div class="versus-card baseline">
+              <span class="versus-label">AnyJev</span>
+              <h3>Academic baseline</h3>
+              <ul>
+                <li>Static van der Corput rotations</li>
+                <li>Prompt order affects adjacency</li>
+                <li>PyTorch research codebase</li>
+                <li>Sequential round trips</li>
+              </ul>
+            </div>
+            <div class="versus-divider" aria-hidden="true"><span>vs</span></div>
+            <div class="versus-card xonus">
+              <span class="versus-label">Xonus</span>
+              <h3>Production engine</h3>
+              <ul>
+                <li>Active dynamic sampling</li>
+                <li>Canonical pre-sorting</li>
+                <li>TypeScript/Node + Python integration</li>
+                <li>Async parallel prefill</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="upgrade-grid">
+            <article class="upgrade reveal">
+              <div class="upgrade-head">
+                <span class="upgrade-num">01</span>
+                <h3>Active dynamic sampling</h3>
+              </div>
+              <p>
+                AnyJev reads a static van der Corput sequence regardless of option
+                closeness. Xonus inspects the top two candidates and picks the next
+                unread rotation that maximizes their spatial separation — resolving
+                ambiguity in <strong>2.22 rotations</strong> instead of 2.33–2.42.
+              </p>
+              <div class="upgrade-visual sampling-visual" aria-hidden="true">
+                <div class="sampling-line">
+                  <span class="sampling-name">Static</span>
+                  <span class="sampling-track static-track">
+                    <i style="--i: 0"></i><i style="--i: 1"></i><i style="--i: 2"></i>
+                    <i style="--i: 3"></i><i style="--i: 4"></i><i style="--i: 5"></i>
+                    <i style="--i: 6"></i><i style="--i: 7"></i>
+                  </span>
+                  <span class="sampling-tag">even sweep</span>
+                </div>
+                <div class="sampling-line">
+                  <span class="sampling-name accent">Dynamic</span>
+                  <span class="sampling-track dynamic-track">
+                    <i class="picked"></i><i></i><i></i><i class="picked"></i>
+                    <i></i><i></i><i></i><i class="picked"></i>
+                  </span>
+                  <span class="sampling-tag accent">max gap</span>
+                </div>
+              </div>
+              <div class="upgrade-compare">
+                <span><b>AnyJev</b> fixed sequence</span>
+                <span><b>Xonus</b> adaptive</span>
+              </div>
+            </article>
+
+            <article class="upgrade reveal">
+              <div class="upgrade-head">
+                <span class="upgrade-num">02</span>
+                <h3>Canonical pre-sorting</h3>
+              </div>
+              <p>
+                Xonus sorts options alphabetically before the cyclic shift. The initial
+                prompt set is invariant to input array order, so option adjacency and
+                context position cannot bias the result.
+              </p>
+              <div class="upgrade-visual sort-visual" aria-hidden="true">
+                <div class="chip-row raw">
+                  <span>Sales</span><span>Billing</span><span>Engineering</span>
+                </div>
+                <div class="sort-arrow">↓ canonical sort</div>
+                <div class="chip-row sorted">
+                  <span>Billing</span><span>Engineering</span><span>Sales</span>
+                  <span class="sort-check">✓</span>
+                </div>
+              </div>
+              <div class="upgrade-compare">
+                <span><b>AnyJev</b> input-order sensitive</span>
+                <span><b>Xonus</b> order-invariant</span>
+              </div>
+            </article>
+
+            <article class="upgrade reveal">
+              <div class="upgrade-head">
+                <span class="upgrade-num">03</span>
+                <h3>Native production SDKs</h3>
+              </div>
+              <p>
+                AnyJev shipped as a PyTorch research codebase. Xonus exposes the same
+                decision protocol from TypeScript/Node.js, with a Python path for
+                vLLM/FastAPI services — no heavy sidecar between your app and the model.
+              </p>
+              <div class="upgrade-visual sdk-visual" aria-hidden="true">
+                <div class="sdk-chip">
+                  <span class="sdk-lang ts">TS</span>
+                  <code>import &#123; Xonus &#125; from 'xonus'</code>
+                  <i class="sdk-cursor"></i>
+                </div>
+                <div class="sdk-chip">
+                  <span class="sdk-lang py">PY</span>
+                  <code>from xonus import Xonus</code>
+                  <i class="sdk-cursor py-cursor"></i>
+                </div>
+                <div class="sdk-note">same contract · serverless-ready</div>
+              </div>
+              <div class="upgrade-compare">
+                <span><b>AnyJev</b> research repo</span>
+                <span><b>Xonus</b> production SDK</span>
+              </div>
+            </article>
+
+            <article class="upgrade reveal">
+              <div class="upgrade-head">
+                <span class="upgrade-num">04</span>
+                <h3>Async parallel prefill</h3>
+              </div>
+              <p>
+                Xonus issues rotation queries asynchronously in parallel over cloud
+                APIs such as Gemini Flash, collapsing wall-clock round trips into a
+                single pass instead of waiting on each rotation in sequence.
+              </p>
+              <div class="upgrade-visual parallel-visual" aria-hidden="true">
+                <div class="parallel-lane sequential">
+                  <span class="parallel-label">seq</span>
+                  <i></i><i></i><i></i>
+                  <b>3 round trips</b>
+                </div>
+                <div class="parallel-lane parallel">
+                  <span class="parallel-label accent">par</span>
+                  <i></i><i></i><i></i>
+                  <b class="accent">1 round trip</b>
+                </div>
+              </div>
+              <div class="upgrade-compare">
+                <span><b>AnyJev</b> sequential</span>
+                <span><b>Xonus</b> parallel</span>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
       <!-- ================================================================= FAQ -->
       <section class="section" id="faq">
         <div class="container">
@@ -444,10 +757,10 @@ import { snippets } from '../data/snippets';
               <summary>Is Xonus another LLM or agent framework?</summary>
               <div class="faq-answer">
                 <p>
-                  No. Xonus is a small decision primitive over Gemini. It does not run an
-                  agent loop, manage tools, or store state. It asks one multiple-choice
-                  question, reads the model's token distribution, and returns a typed
-                  result.
+                  No. Xonus is a small decision primitive over any supported chat model.
+                  It does not run an agent loop, manage tools, or store state. It asks
+                  one multiple-choice question, reads the model's token distribution, and
+                  returns a typed result.
                 </p>
               </div>
             </details>
@@ -493,7 +806,7 @@ import { snippets } from '../data/snippets';
               <div class="faq-answer">
                 <p>
                   Technically yes — the package is ESM and has no Node-only dependencies.
-                  But do not ship a Gemini API key in client-side code. Put Xonus behind
+                  But do not ship a provider API key in client-side code. Put Xonus behind
                   your own API route or serverless function and call it from the browser.
                 </p>
               </div>
@@ -503,13 +816,61 @@ import { snippets } from '../data/snippets';
               <summary>Which models are supported?</summary>
               <div class="faq-answer">
                 <p>
-                  Any Gemini model that supports <code class="inline-code">responseLogprobs</code>.
-                  The default is <code class="inline-code">gemini-2.5-flash</code>. Model
-                  names and thinking budgets are configurable.
+                  Gemini, OpenAI and any OpenAI-compatible API (including OpenRouter,
+                  Groq, Ollama, and vLLM), Anthropic, and custom adapters are supported.
+                  The default is <code class="inline-code">gemini-2.5-flash</code>.
+                  Calibrated confidence requires a model that exposes token logprobs;
+                  text-only models still return a decision with
+                  <code class="inline-code">confident: false</code>.
                 </p>
               </div>
             </details>
           </div>
+        </div>
+      </section>
+
+      <!-- ============================================================= Community -->
+      <section class="section community-section" id="community">
+        <div class="container">
+          <div class="community-band reveal">
+            <div class="community-copy">
+              <span class="community-mark" aria-hidden="true">
+                <GitHubIcon size={24} />
+              </span>
+              <div>
+                <p class="kicker">Open source</p>
+                <h2>Built in public. Backed by contributors.</h2>
+                <p>
+                  Xonus is MIT licensed. Star the repo, open an issue, or sponsor the
+                  work that keeps it moving.
+                </p>
+              </div>
+            </div>
+            <div class="community-actions">
+              <a
+                class="btn btn-primary community-btn"
+                href={site.repo}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <GitHubIcon size={17} />
+                Contribute on GitHub <span class="arrow">↗</span>
+              </a>
+              <a
+                class="btn btn-ghost community-btn donate"
+                href={site.sponsor}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <HeartIcon size={17} />
+                Sponsor / donate
+              </a>
+            </div>
+          </div>
+          <p class="community-note">
+            Prefer code to cash? <a href={site.issues}>Open an issue</a> or send a pull
+            request — contributions are just as valuable.
+          </p>
         </div>
       </section>
 

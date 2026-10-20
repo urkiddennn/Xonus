@@ -1,6 +1,10 @@
 node_modules/
 dist/
 .astro/
+.hyperframes/
+.thumbnails/
+.waveform-cache/
+renders/
 coverage/
 *.tgz
 .env

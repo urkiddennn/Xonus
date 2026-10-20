@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    <template>
+      <style>
+        #scene-06-proof {
+          position: absolute;
+          inset: 0;
+          width: 100%;
+          height: 100%;
+          overflow: hidden;
+        }
+
+        .s6-stage {
+          position: absolute;
+          inset: 0;
+        }
+
+        .s6-ghost {
+          position: absolute;
+          left: 90px;
+          top: 388px;
+          font-family: var(--font-display);
+          font-size: 300px;
+          font-weight: 700;
+          letter-spacing: -0.075em;
+          line-height: 0.74;
+          color: rgba(255, 255, 255, 0.028);
+          white-space: nowrap;
+          text-transform: uppercase;
+        }
+
+        .s6-kicker {
+          position: absolute;
+          left: 140px;
+          top: 126px;
+        }
+
+        .s6-headline {
+          position: absolute;
+          left: 140px;
+          top: 198px;
+          width: 1600px;
+          font-size: 108px;
+        }
+
+        .s6-subcopy {
+          position: absolute;
+          left: 140px;
+          top: 340px;
+          width: 1420px;
+          font-size: 26px;
+        }
+
+        .s6-connector {
+          position: absolute;
+          left: 140px;
+          top: 414px;
+          width: 1px;
+          height: 54px;
+          background: linear-gradient(180deg, var(--accent-line), transparent);
+          transform-origin: top center;
+        }
+
+        .s6-stats {
+          position: absolute;
+          left: 140px;
+          top: 486px;
+          width: 1640px;
+          display: grid;
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+          border-top: 1px solid var(--border-strong);
+          border-bottom: 1px solid var(--border);
+        }
+
+        .s6-stat {
+          position: relative;
+          min-height: 326px;
+          padding: 28px 30px 30px;
+          border-right: 1px solid var(--border);
+        }
+
+        .s6-stat:last-child {
+          border-right: 0;
+        }
+
+        .s6-stat-head {
+          display: flex;
+          align-items: baseline;
+          justify-content: space-between;
+          gap: 10px;
+        }
+
+        .s6-stat-unit {
+          color: var(--accent);
+          font-family: var(--font-mono);
+          font-size: 12px;
+          letter-spacing: 0.14em;
+          text-transform: uppercase;
+        }
+
+        .s6-stat-index {
+          color: var(--faint);
+          font-family: var(--font-mono);
+          font-size: 10px;
+          letter-spacing: 0.1em;
+        }
+
+        .s6-stat-value {
+          margin-top: 30px;
+          color: var(--text);
+          font-family: var(--font-display);
+          font-size: 148px;
+          font-weight: 600;
+          line-height: 0.82;
+          letter-spacing: -0.065em;
+          font-variant-numeric: tabular-nums;
+        }
+
+        .s6-stat:nth-child(2) .s6-stat-value {
+          color: var(--cyan);
+        }
+
+        .s6-stat:nth-child(3) .s6-stat-value {
+          color: var(--text);
+        }
+
+        .s6-stat:nth-child(4) .s6-stat-value {
+          color: var(--violet);
+        }
+
+        .s6-stat-label {
+          margin-top: 24px;
+          color: var(--text-soft);
+          font-family: var(--font-body);
+          font-size: 18px;
+          line-height: 1.35;
+          letter-spacing: -0.01em;
+          max-width: 320px;
+        }
+
+        .s6-stat-label small {
+          display: block;
+          margin-top: 7px;
+          color: var(--muted);
+          font-family: var(--font-mono);
+          font-size: 11px;
+          letter-spacing: 0.06em;
+          text-transform: uppercase;
+        }
+
+        .s6-stat-bar {
+          position: absolute;
+          left: 30px;
+          right: 30px;
+          bottom: 28px;
+          height: 3px;
+          background: rgba(255, 255, 255, 0.06);
+          border-radius: 999px;
+          overflow: hidden;
+        }
+
+        .s6-stat-bar i {
+          display: block;
+          width: 100%;
+          height: 100%;
+          border-radius: inherit;
+          transform-origin: left center;
+          background: linear-gradient(90deg, var(--accent), var(--cyan));
+        }
+
+        .s6-stat:nth-child(2) .s6-stat-bar i {
+          background: linear-gradient(90deg, var(--cyan), var(--accent));
+        }
+
+        .s6-stat:nth-child(3) .s6-stat-bar i {
+          background: linear-gradient(90deg, var(--text-soft), var(--accent));
+        }
+
+        .s6-stat:nth-child(4) .s6-stat-bar i {
+          background: linear-gradient(90deg, var(--violet), var(--cyan));
+          width: 8%;
+        }
+
+        .s6-ticker {
+          position: absolute;
+          left: 0;
+          right: 0;
+          bottom: 98px;
+          height: 70px;
+          display: flex;
+          align-items: center;
+          border-top: 1px solid var(--border);
+          border-bottom: 1px solid var(--border);
+          background: rgba(255, 255, 255, 0.012);
+          overflow: hidden;
+          mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+          -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+        }
+
+        .s6-ticker-track {
+          display: flex;
+          align-items: center;
+          width: max-content;
+          will-change: transform;
+        }
+
+        .s6-ticker-group {
+          display: flex;
+          align-items: center;
+          gap: 34px;
+          padding-right: 34px;
+          color: var(--muted);
+          font-family: var(--font-mono);
+          font-size: 18px;
+          letter-spacing: 0.14em;
+          text-transform: uppercase;
+          white-space: nowrap;
+        }
+
+        .s6-ticker-group b {
+          color: var(--accent);
+          font-weight: 400;
+        }
+
+        .s6-ticker-group .hot {
+          color: var(--text-soft);
+        }
+
+        .s6-footnote {
+          position: absolute;
+          left: 140px;
+          top: 852px;
+          color: var(--muted);
+          font-family: var(--font-mono);
+          font-size: 10px;
+          letter-spacing: 0.14em;
+          text-transform: uppercase;
+        }
+      </style>
+
+      <div data-hf-id="hf-aoxn" id="scene-06-proof" data-composition-id="scene-06-proof" data-width="1920" data-height="1080">
+        <div data-hf-id="hf-jbxu" class="s6-stage" id="s6-stage">
+          <div data-hf-id="hf-xnmp" class="s6-ghost" data-layout-ignore data-layout-allow-overflow data-layout-allow-occlusion>Routing</div>
+          <p data-hf-id="hf-c9zg" class="kicker s6-kicker">06 / The proof — built for real routing</p>
+
+          <h2 data-hf-id="hf-y76i" class="headline s6-headline">Built for real routing.</h2>
+
+          <p data-hf-id="hf-7xiy" class="subcopy s6-subcopy">
+            Ticket triage, agent routing, moderation, intent detection, lead scoring.
+            The same six-line call, every time.
+          </p>
+
+          <div data-hf-id="hf-2sfi" class="s6-connector" id="s6-connector"></div>
+
+          <div data-hf-id="hf-5nqe" class="s6-stats" id="s6-stats">
+            <div data-hf-id="hf-k2fi" class="s6-stat">
+              <div data-hf-id="hf-zjh5" class="s6-stat-head">
+                <span data-hf-id="hf-uea2" class="s6-stat-unit">Tau</span>
+                <span data-hf-id="hf-lo71" class="s6-stat-index">01</span>
+              </div>
+              <div data-hf-id="hf-xo7n" class="s6-stat-value" id="s6-value-1">0.0</div>
+              <div data-hf-id="hf-4xhu" class="s6-stat-label">≈ 403:1 odds to accept<small data-hf-id="hf-syvy">Early stop threshold</small></div>
+              <div data-hf-id="hf-5s7a" class="s6-stat-bar"><i data-hf-id="hf-wcrg" id="s6-bar-1"></i></div>
+            </div>
+
+            <div data-hf-id="hf-8u36" class="s6-stat">
+              <div data-hf-id="hf-u59p" class="s6-stat-head">
+                <span data-hf-id="hf-l8m3" class="s6-stat-unit">Gate</span>
+                <span data-hf-id="hf-mv44" class="s6-stat-index">02</span>
+              </div>
+              <div data-hf-id="hf-bitq" class="s6-stat-value" id="s6-value-2">0.00</div>
+              <div data-hf-id="hf-xbah" class="s6-stat-label">Mass required on valid options<small data-hf-id="hf-3y1n">Answer-mass quality gate</small></div>
+              <div data-hf-id="hf-9xca" class="s6-stat-bar"><i data-hf-id="hf-50nb" id="s6-bar-2"></i></div>
+            </div>
+
+            <div data-hf-id="hf-98e7" class="s6-stat">
+              <div data-hf-id="hf-vc6s" class="s6-stat-head">
+                <span data-hf-id="hf-3pi1" class="s6-stat-unit">Passes</span>
+                <span data-hf-id="hf-mgt3" class="s6-stat-index">03</span>
+              </div>
+              <div data-hf-id="hf-rk1z" class="s6-stat-value" id="s6-value-3">1–2</div>
+              <div data-hf-id="hf-qfov" class="s6-stat-label">Fast by default<small data-hf-id="hf-612i">Deliberate when needed</small></div>
+              <div data-hf-id="hf-abnb" class="s6-stat-bar"><i data-hf-id="hf-12ja" id="s6-bar-3"></i></div>
+            </div>
+
+            <div data-hf-id="hf-9mp8" class="s6-stat">
+              <div data-hf-id="hf-uxvr" class="s6-stat-head">
+                <span data-hf-id="hf-a7os" class="s6-stat-unit">Extra infra</span>
+                <span data-hf-id="hf-nnq6" class="s6-stat-index">04</span>
+              </div>
+              <div data-hf-id="hf-m8vo" class="s6-stat-value" id="s6-value-4">0</div>
+              <div data-hf-id="hf-phqe" class="s6-stat-label">No classifier, vector DB, or queue<small data-hf-id="hf-apsu">One engine, one call</small></div>
+              <div data-hf-id="hf-apyc" class="s6-stat-bar"><i data-hf-id="hf-9qf5" id="s6-bar-4"></i></div>
+            </div>
+          </div>
+
+          <div data-hf-id="hf-gyv6" class="s6-ticker" id="s6-ticker" data-layout-allow-overflow data-layout-allow-overlap data-layout-allow-occlusion>
+            <div data-hf-id="hf-k1wq" class="s6-ticker-track" id="s6-ticker-track" data-layout-allow-occlusion>
+              <div data-hf-id="hf-egbc" class="s6-ticker-group" data-layout-allow-occlusion>
+                <span data-hf-id="hf-cs76" class="hot">Ticket triage</span><b data-hf-id="hf-x3pa">/</b><span data-hf-id="hf-bjf4">Agent routing</span><b data-hf-id="hf-q6zm">/</b><span data-hf-id="hf-n1bl">Moderation</span><b data-hf-id="hf-qlan">/</b>
+                <span data-hf-id="hf-jp9w">Intent detection</span><b data-hf-id="hf-qzlo">/</b><span data-hf-id="hf-7zki">Lead scoring</span><b data-hf-id="hf-rdwp">/</b><span data-hf-id="hf-sawc">Escalation</span><b data-hf-id="hf-rs7q">/</b>
+                <span data-hf-id="hf-fxjg">Support triage</span><b data-hf-id="hf-s6ir">/</b><span data-hf-id="hf-g9xd">Tool selection</span><b data-hf-id="hf-skts">/</b>
+              </div>
+              <div data-hf-id="hf-pu28" class="s6-ticker-group" data-layout-allow-occlusion>
+                <span data-hf-id="hf-c9ie" class="hot">Ticket triage</span><b data-hf-id="hf-mm8d">/</b><span data-hf-id="hf-825k">Agent routing</span><b data-hf-id="hf-n0je">/</b><span data-hf-id="hf-fbdx">Moderation</span><b data-hf-id="hf-tcpi">/</b>
+                <span data-hf-id="hf-8udo">Intent detection</span><b data-hf-id="hf-syeh">/</b><span data-hf-id="hf-8p3q">Lead scoring</span><b data-hf-id="hf-u5bk">/</b><span data-hf-id="hf-9mf8">Escalation</span><b data-hf-id="hf-tr0j">/</b>
+                <span data-hf-id="hf-it9g">Support triage</span><b data-hf-id="hf-rrhe">/</b><span data-hf-id="hf-qxcl">Tool selection</span><b data-hf-id="hf-rd6d">/</b>
+              </div>
+            </div>
+          </div>
+
+          <div data-hf-id="hf-zbtw" class="s6-footnote">MIT licensed · TypeScript · ESM + CJS</div>
+        </div>
+      </div>
+
+      <script>
+        const tl = gsap.timeline({ paused: true });
+
+        tl.fromTo('#s6-stage', { opacity: 0 }, { opacity: 1, duration: 0.3, ease: 'power1.out' }, 0);
+        tl.fromTo('.s6-headline', { y: 32, opacity: 0 }, { y: 0, opacity: 1, duration: 0.75, ease: 'power3.out' }, 0.1);
+        tl.fromTo('.s6-subcopy', { y: 18, opacity: 0 }, { y: 0, opacity: 1, duration: 0.55, ease: 'power2.out' }, 0.42);
+        tl.fromTo('#s6-connector', { scaleY: 0, opacity: 0 }, { scaleY: 1, opacity: 1, duration: 0.5, ease: 'power2.out' }, 0.55);
+        tl.fromTo('#s6-stats', { opacity: 0 }, { opacity: 1, duration: 0.4, ease: 'power2.out' }, 0.55);
+        tl.fromTo('.s6-stat', { y: 28, opacity: 0 }, { y: 0, opacity: 1, duration: 0.55, ease: 'power3.out', stagger: 0.1 }, 0.65);
+
+        const s6a = { value: 0 };
+        tl.to(
+          s6a,
+          {
+            value: 6,
+            duration: 1.05,
+            ease: 'power2.out',
+            onUpdate: () => {
+              document.querySelector('#s6-value-1').textContent = s6a.value.toFixed(1);
+            },
+          },
+          1.0
+        );
+
+        const s6b = { value: 0 };
+        tl.to(
+          s6b,
+          {
+            value: 0.99,
+            duration: 1.05,
+            ease: 'power2.out',
+            onUpdate: () => {
+              document.querySelector('#s6-value-2').textContent = s6b.value.toFixed(2);
+            },
+          },
+          1.1
+        );
+
+        tl.fromTo('#s6-value-3', { scale: 0.88, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.42, ease: 'back.out(1.7)' }, 1.3);
+        tl.fromTo('#s6-value-4', { opacity: 0 }, { opacity: 1, duration: 0.35, ease: 'power2.out' }, 1.5);
+
+        tl.fromTo('#s6-bar-1', { scaleX: 0 }, { scaleX: 0.78, duration: 0.8, ease: 'power3.out' }, 1.15);
+        tl.fromTo('#s6-bar-2', { scaleX: 0 }, { scaleX: 0.99, duration: 0.8, ease: 'power3.out' }, 1.25);
+        tl.fromTo('#s6-bar-3', { scaleX: 0 }, { scaleX: 0.4, duration: 0.8, ease: 'power3.out' }, 1.35);
+        tl.fromTo('#s6-bar-4', { scaleX: 0 }, { scaleX: 0.08, duration: 0.8, ease: 'power3.out' }, 1.45);
+
+        tl.fromTo('#s6-ticker', { opacity: 0 }, { opacity: 1, duration: 0.5, ease: 'power2.out' }, 0.6);
+        tl.fromTo('#s6-ticker-track', { xPercent: 0 }, { xPercent: -50, duration: 3.9, ease: 'none' }, 0.1);
+        tl.fromTo('.s6-ghost', { x: 0, opacity: 0 }, { x: -36, opacity: 1, duration: 3.6, ease: 'sine.out' }, 0.15);
+
+        tl.to('.s6-stat', { y: -26, opacity: 0, duration: 0.4, ease: 'power2.in', stagger: 0.045 }, 3.55);
+        tl.to('#s6-ticker', { opacity: 0, duration: 0.35, ease: 'power2.in' }, 3.55);
+        tl.to('#s6-stage', { opacity: 0, filter: 'blur(5px)', duration: 0.42, ease: 'power2.in' }, 3.62);
+
+        window.__timelines['scene-06-proof'] = tl;
+      </script>
+    </template>
+  </body>
+</html>

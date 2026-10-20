@@ -1,0 +1,23 @@
+---
+import { Code } from 'astro:components';
+
+interface Props {
+  code: string;
+  lang?: 'ts' | 'js' | 'json' | 'bash' | 'powershell' | 'text';
+  file?: string;
+}
+
+const { code, lang = 'text', file } = Astro.props;
+const shikiLang = lang === 'text' ? 'plaintext' : lang;
+---
+
+<div class="codeblock" data-lang={lang}>
+  <div class="codeblock-head">
+    <span class="codeblock-lang">{lang}</span>
+    {file && <span class="codeblock-file">{file}</span>}
+    <button class="copy-btn" type="button" aria-label="Copy code to clipboard">
+      Copy
+    </button>
+  </div>
+  <Code code={code} lang={shikiLang} theme="github-dark" />
+</div>

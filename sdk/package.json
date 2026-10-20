@@ -1,0 +1,62 @@
+{
+  "name": "xonus",
+  "version": "0.1.0",
+  "description": "A Gemini-native decision engine: log-odds early stopping plus answer-mass quality gating.",
+  "license": "MIT",
+  "author": "Xonus",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "xonus",
+    "gemini",
+    "google-genai",
+    "decision-engine",
+    "logprobs",
+    "log-odds",
+    "early-stopping",
+    "llm",
+    "ai",
+    "classifier",
+    "routing"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run typecheck && npm run test && npm run build"
+  },
+  "dependencies": {
+    "@google/genai": "^2.30.0"
+  },
+  "devDependencies": {
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.3",
+    "vitest": "^5.0.5"
+  }
+}

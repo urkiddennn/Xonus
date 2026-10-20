@@ -1,0 +1,69 @@
+---
+interface Props {
+  docs?: boolean;
+}
+
+const { docs = false } = Astro.props;
+
+const links = docs
+  ? [
+      { href: '/', label: 'Product' },
+      { href: '/#how', label: 'How it works' },
+      { href: '/docs', label: 'Docs', current: true },
+      { href: '#faq', label: 'FAQ' },
+    ]
+  : [
+      { href: '#features', label: 'Features' },
+      { href: '#how', label: 'How it works' },
+      { href: '/docs', label: 'Docs' },
+      { href: '#faq', label: 'FAQ' },
+    ];
+
+const cta = docs
+  ? { href: '#quickstart', label: 'Quickstart' }
+  : { href: '/docs#quickstart', label: 'Get started' };
+---
+
+<header class:list={['site-nav', { solid: docs }]}>
+  <div class="container nav-inner">
+    <a class="brand" href="/" aria-label="Xonus home">
+      <img class="brand-mark" src="/assets/logo.svg" alt="" width="30" height="30" />
+      Xonus
+    </a>
+
+    <nav aria-label="Primary">
+      <ul class="nav-links" id="nav-links">
+        {
+          links.map((link) => (
+            <li>
+              <a href={link.href} aria-current={link.current ? 'page' : undefined}>
+                {link.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="nav-actions">
+      <a
+        class="btn btn-ghost btn-sm"
+        href="https://www.npmjs.com/package/xonus"
+        target="_blank"
+        rel="noreferrer"
+      >
+        npm <span class="arrow">↗</span>
+      </a>
+      <a class="btn btn-primary btn-sm" href={cta.href}>{cta.label}</a>
+      <button
+        class="nav-toggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="nav-links"
+        aria-label="Toggle navigation"
+      >
+        <span></span>
+      </button>
+    </div>
+  </div>
+</header>

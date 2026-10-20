@@ -1,0 +1,559 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Footer from '../components/Footer.astro';
+import CodeBlock from '../components/CodeBlock.astro';
+import { snippets } from '../data/snippets';
+---
+
+<Layout
+  title="Xonus — Decisions that stop the moment they're certain"
+  description="Xonus is a Gemini-native decision engine with log-odds early stopping and answer-mass quality gating. Typed, fast, and honest about uncertainty."
+>
+
+      <!-- ================================================================ Hero -->
+      <section class="hero">
+        <div class="container">
+          <div class="hero-grid">
+            <div>
+              <span class="eyebrow"><span class="dot"></span> v0.1.0 · Gemini-native</span>
+              <h1>
+                Decisions that stop the moment they're
+                <span class="gradient-text">certain.</span>
+              </h1>
+              <p class="hero-copy">
+                Xonus turns Gemini into a calibrated multiple-choice engine. It reads
+                token-level logprobs, stops generating the instant the answer is settled,
+                and refuses to call itself confident when the evidence is thin.
+              </p>
+
+              <div class="hero-actions">
+                <a class="btn btn-primary" href="/docs#quickstart">
+                  Start building <span class="arrow">→</span>
+                </a>
+                <a class="btn btn-ghost" href="/docs">Read the docs</a>
+              </div>
+
+              <div class="hero-meta">
+                <span>MIT licensed</span>
+                <span>TypeScript · ESM + CJS</span>
+                <span>One runtime dependency</span>
+              </div>
+            </div>
+
+            <div class="terminal" role="img" aria-label="Example Xonus decision response">
+              <div class="terminal-bar">
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="terminal-title">xonus / decide</span>
+                <span class="terminal-badge">200 OK</span>
+              </div>
+
+              <div class="terminal-body">
+                <div>
+                  <span class="prompt">$</span> <span class="verb">POST</span>
+                  <span class="route">/v1/decide</span>
+                  <span class="time">184 ms</span>
+                </div>
+                <div><span class="prompt">→</span> routing ticket #4412</div>
+
+                <div class="json">
+                  <div>&#123;</div>
+                  <div>&nbsp;&nbsp;<span class="k">"decision"</span>: <span class="s">"Billing"</span>,</div>
+                  <div>&nbsp;&nbsp;<span class="k">"confidence"</span>: <span class="n">0.998</span>,</div>
+                  <div>&nbsp;&nbsp;<span class="k">"logOdds"</span>: <span class="n">6.21</span>,</div>
+                  <div>&nbsp;&nbsp;<span class="k">"answerMass"</span>: <span class="n">0.999</span>,</div>
+                  <div>&nbsp;&nbsp;<span class="k">"confident"</span>: <span class="b">true</span>,</div>
+                  <div>&nbsp;&nbsp;<span class="k">"passes"</span>: <span class="n">1</span> <span class="prompt">// no reasoning tokens</span></div>
+                  <div>&#125;</div>
+                </div>
+
+                <div class="dist">
+                  <div class="dist-row">
+                    <span>Billing</span>
+                    <span class="dist-track"><span class="dist-fill" style="--p: 99.8%"></span></span>
+                    <span class="dist-value">99.8%</span>
+                  </div>
+                  <div class="dist-row">
+                    <span>Engineering</span>
+                    <span class="dist-track"><span class="dist-fill" style="--p: 0.2%"></span></span>
+                    <span class="dist-value">0.2%</span>
+                  </div>
+                  <div class="dist-row">
+                    <span>Sales</span>
+                    <span class="dist-track"><span class="dist-fill" style="--p: 0%"></span></span>
+                    <span class="dist-value">0.0%</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="terminal-foot">
+                <span>fast pass · temperature 0</span>
+                <span class="ok">tau 6.0 cleared</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="stats reveal">
+            <div class="stat">
+              <div class="stat-value">6.0 <small>tau</small></div>
+              <div class="stat-label">≈ 403:1 odds to accept</div>
+            </div>
+            <div class="stat">
+              <div class="stat-value">0.99 <small>gate</small></div>
+              <div class="stat-label">mass required on valid options</div>
+            </div>
+            <div class="stat">
+              <div class="stat-value">1–2 <small>passes</small></div>
+              <div class="stat-label">fast by default, deliberate when needed</div>
+            </div>
+            <div class="stat">
+              <div class="stat-value">0 <small>extra infra</small></div>
+              <div class="stat-label">no classifier, no vector DB, no queue</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================ Features -->
+      <section class="section" id="features">
+        <div class="container">
+          <div class="section-head reveal">
+            <div>
+              <p class="kicker">Built for real routing</p>
+              <h2>Everything you need to trust a decision.</h2>
+              <p>
+                Not another wrapper that hides the model behind a prompt. Xonus exposes
+                the evidence and gives you one boolean — <code class="inline-code">confident</code> —
+                that is safe to branch on.
+              </p>
+            </div>
+            <p class="head-aside">
+              The same six-line call works for ticket triage, agent routing, moderation,
+              intent detection, and lead scoring.
+            </p>
+          </div>
+
+          <div class="feature-grid">
+            <article class="feature reveal">
+              <div class="feature-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M4 12h9" />
+                  <path d="M9 7l5 5-5 5" />
+                  <path d="M17 5v14" />
+                </svg>
+              </div>
+              <h3>Log-odds early stop</h3>
+              <p>
+                When the top option clears <code>tau</code>, the decision is returned
+                immediately. No chain of thought, no wasted output tokens, no waiting on
+                a paragraph you will throw away.
+              </p>
+            </article>
+
+            <article class="feature reveal">
+              <div class="feature-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 3l7 4v5c0 4.4-3 7.4-7 9-4-1.6-7-4.6-7-9V7l7-4z" />
+                  <path d="M9 12l2 2 4-4" />
+                </svg>
+              </div>
+              <h3>Answer-mass gate</h3>
+              <p>
+                Xonus sums the probability the model placed on valid options. If mass
+                leaks onto “I'm not sure” or off-protocol text, the decision fails the
+                gate instead of pretending to be certain.
+              </p>
+            </article>
+
+            <article class="feature reveal">
+              <div class="feature-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M4 7h6v6H4z" />
+                  <path d="M14 11h6v6h-6z" />
+                  <path d="M10 10l4 4" />
+                  <path d="M7 13v4h7" />
+                </svg>
+              </div>
+              <h3>Two-pass intelligence</h3>
+              <p>
+                Easy calls resolve in one short pass. Hard calls escalate to a streamed
+                deliberation pass — and that stream is aborted the instant the final
+                answer becomes decisive.
+              </p>
+            </article>
+
+            <article class="feature reveal">
+              <div class="feature-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M8 4h8M6 8h12M5 12h14M7 16h10M9 20h6" />
+                </svg>
+              </div>
+              <h3>Typed end to end</h3>
+              <p>
+                One <code>DecisionRequest</code> in, one <code>DecisionResponse</code> out.
+                Every field, every error code, and every config knob is typed. ESM and
+                CommonJS builds ship in the same package.
+              </p>
+            </article>
+
+            <article class="feature reveal">
+              <div class="feature-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 3v18M5 8l7-5 7 5M5 16l7 5 7-5" />
+                </svg>
+              </div>
+              <h3>Provider-native</h3>
+              <p>
+                No proxy, no sidecar, no sampling loop. Xonus calls Gemini directly with
+                <code>responseLogprobs</code> enabled and uses the logprobs Google
+                already returns.
+              </p>
+            </article>
+
+            <article class="feature reveal">
+              <div class="feature-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M4 6h16M4 12h16M4 18h16" />
+                  <path d="M8 3v6M16 9v6M10 15v6" />
+                </svg>
+              </div>
+              <h3>Batch ready</h3>
+              <p>
+                <code>decideBatch</code> runs decisions with bounded concurrency and keeps
+                input order. Abort the whole batch with one signal when a request is
+                cancelled.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- =========================================================== How it works -->
+      <section class="section" id="how">
+        <div class="container">
+          <div class="section-head reveal">
+            <div>
+              <p class="kicker">Under the hood</p>
+              <h2>Spend tokens only when the answer is still unclear.</h2>
+              <p>
+                A language model already knows how likely each answer is. Xonus reads
+                that distribution at the decision token instead of parsing the prose
+                that follows it.
+              </p>
+            </div>
+          </div>
+
+          <div class="steps">
+            <article class="step reveal">
+              <h3>Ask for one letter</h3>
+              <p>
+                A tight prompt maps your options to A, B, C… and asks for a single
+                letter. Temperature is pinned to 0, so the fast pass is as deterministic
+                as the API allows.
+              </p>
+            </article>
+            <article class="step reveal">
+              <h3>Read the margin</h3>
+              <p>
+                Xonus aggregates the logprobs of every token spelling of each letter and
+                computes <code>ln(p₁ / p₂)</code>. Clear <code>tau</code> and the
+                decision is returned immediately.
+              </p>
+            </article>
+            <article class="step reveal">
+              <h3>Escalate, then cut</h3>
+              <p>
+                If the margin or answer mass is weak, a second pass justifies the call.
+                Xonus watches the final answer token and aborts the stream the moment it
+                is decisive.
+              </p>
+            </article>
+          </div>
+
+          <div class="formula-panel reveal">
+            <div class="formula-copy">
+              <h3>The math is boring. That's the point.</h3>
+              <p>
+                With two options at 0.998 and 0.002, the margin is
+                <code class="inline-code">ln(499) = 6.21</code>. That clears the default
+                <code class="inline-code">tau = 6.0</code>, so Xonus returns without a
+                deliberation pass.
+              </p>
+              <div class="formula">
+                <span class="op">logOdds</span> = ln(<span class="num">0.998</span> /
+                <span class="num">0.002</span>) = <span class="num">6.21</span>
+                <span class="op">≥</span> tau <span class="op">=</span>
+                <span class="num">6.0</span> → <span class="ok">accept</span>
+              </div>
+            </div>
+            <div class="formula-visual">
+              <div class="odds-row">
+                <div class="odds-label"><strong>Billing</strong><span>0.998</span></div>
+                <div class="odds-bar"><i style="--w: 99.8%"></i></div>
+              </div>
+              <div class="odds-row dim">
+                <div class="odds-label"><strong>Engineering</strong><span>0.002</span></div>
+                <div class="odds-bar"><i style="--w: 0.2%"></i></div>
+              </div>
+              <div class="verdict">early stop · margin 6.21 ≥ 6.0</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================ Code -->
+      <section class="section" id="code">
+        <div class="container code-section">
+          <div class="reveal">
+            <p class="kicker">Quickstart</p>
+            <h2>One call. A decision with evidence.</h2>
+            <p>
+              Install the package, set one environment variable, and branch on
+              <code class="inline-code">confident</code>. Everything else is optional.
+            </p>
+            <ul class="check-list">
+              <li>Works in Node 18+, Bun, Deno, and modern browsers</li>
+              <li>Reads limits and retries from config, not globals</li>
+              <li>Ships ESM, CJS, source maps, and declaration files</li>
+              <li>No hidden agent loop, no extra network hop</li>
+            </ul>
+            <div class="hero-actions">
+              <a class="btn btn-primary" href="/docs#quickstart">
+                Full quickstart <span class="arrow">→</span>
+              </a>
+            </div>
+          </div>
+
+          <div class="reveal">
+            <div class="tabs" data-tabs>
+              <div class="tab-list" role="tablist" aria-label="Code examples">
+                <button
+                  class="tab"
+                  type="button"
+                  role="tab"
+                  id="tab-decide"
+                  aria-controls="panel-decide"
+                  aria-selected="true"
+                >
+                  decide.ts
+                </button>
+                <button
+                  class="tab"
+                  type="button"
+                  role="tab"
+                  id="tab-result"
+                  aria-controls="panel-result"
+                  aria-selected="false"
+                  tabindex="-1"
+                >
+                  result.json
+                </button>
+                <button
+                  class="tab"
+                  type="button"
+                  role="tab"
+                  id="tab-batch"
+                  aria-controls="panel-batch"
+                  aria-selected="false"
+                  tabindex="-1"
+                >
+                  batch.ts
+                </button>
+              </div>
+
+              <div class="tab-panel" role="tabpanel" id="panel-decide" aria-labelledby="tab-decide">
+                <CodeBlock code={snippets.decide} lang="ts" file="decide.ts" />
+              </div>
+
+              <div class="tab-panel" role="tabpanel" id="panel-result" aria-labelledby="tab-result" hidden>
+                <CodeBlock code={snippets.landingResult} lang="json" file="result.json" />
+              </div>
+
+              <div class="tab-panel" role="tabpanel" id="panel-batch" aria-labelledby="tab-batch" hidden>
+                <CodeBlock code={snippets.batch} lang="ts" file="batch.ts" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================ Gate -->
+      <section class="section" id="gate">
+        <div class="container split">
+          <div class="reveal">
+            <p class="kicker">Confidence, not vibes</p>
+            <h2>A probability is not a promise.</h2>
+            <p>
+              A model can be 90% sure that “Billing” is right and still spend 8% of its
+              probability on text that is not one of your options. That 8% is exactly
+              where bad automations come from.
+            </p>
+            <p>
+              <code class="inline-code">answerMassGate</code> checks that the model put
+              its probability where your answers actually are.
+              <code class="inline-code">confident</code> requires both a wide margin and a
+              passing gate.
+            </p>
+            <ul class="check-list">
+              <li>Branch on <code>confident</code>, not on the text alone</li>
+              <li>Send failures to a human, a stronger model, or a retry path</li>
+              <li>Use <code>answerMass</code> and <code>logOdds</code> for dashboards</li>
+            </ul>
+          </div>
+
+          <div class="result-card reveal">
+            <div class="result-top">
+              <span class="result-title">Decision · ambiguous ticket</span>
+              <span class="status-pill warn">escalate</span>
+            </div>
+            <div class="result-rows">
+              <div class="result-row"><span>decision</span><span>Engineering</span></div>
+              <div class="result-row"><span>confidence</span><span>0.710</span></div>
+              <div class="result-row"><span>logOdds</span><span>2.41</span></div>
+              <div class="result-row"><span>answerMass</span><span class="bad">0.931</span></div>
+              <div class="result-row"><span>gatePassed</span><span class="bad">false</span></div>
+              <div class="result-row"><span>confident</span><span class="bad">false</span></div>
+              <div class="result-row"><span>source</span><span>deliberate</span></div>
+            </div>
+            <div class="result-note">
+              <b>93.1%</b> of output mass landed on valid options — below the
+              <b>99%</b> gate. Xonus returns the best answer it has, but flags it.
+              No retry loop. No fabricated confidence.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================= FAQ -->
+      <section class="section" id="faq">
+        <div class="container">
+          <div class="section-head reveal">
+            <div>
+              <p class="kicker">Questions</p>
+              <h2>Short answers, no hand-waving.</h2>
+            </div>
+            <p class="head-aside">
+              Still curious? The <a href="/docs" style="color: var(--accent)">docs</a>
+              cover config, errors, tuning, and the exact algorithm.
+            </p>
+          </div>
+
+          <div class="faq reveal">
+            <details open>
+              <summary>Is Xonus another LLM or agent framework?</summary>
+              <div class="faq-answer">
+                <p>
+                  No. Xonus is a small decision primitive over Gemini. It does not run an
+                  agent loop, manage tools, or store state. It asks one multiple-choice
+                  question, reads the model's token distribution, and returns a typed
+                  result.
+                </p>
+              </div>
+            </details>
+
+            <details>
+              <summary>How is this different from asking for JSON?</summary>
+              <div class="faq-answer">
+                <p>
+                  JSON mode gives you a parseable answer. Xonus gives you the
+                  probability distribution behind the answer, the raw mass on valid
+                  options, a log-odds margin, and an abortable deliberation pass. You
+                  can set a threshold and route on it.
+                </p>
+              </div>
+            </details>
+
+            <details>
+              <summary>What happens when the model does not return logprobs?</summary>
+              <div class="faq-answer">
+                <p>
+                  Xonus falls back to reading the answer text, but reports
+                  <code class="inline-code">confidence: 0</code>,
+                  <code class="inline-code">answerMass: 0</code>, and
+                  <code class="inline-code">confident: false</code>. It never invents a
+                  probability it did not observe.
+                </p>
+              </div>
+            </details>
+
+            <details>
+              <summary>Does every decision cost two model calls?</summary>
+              <div class="faq-answer">
+                <p>
+                  No. Confident fast passes return after one short request with no
+                  deliberation tokens. Only decisions that fail the margin or mass check
+                  escalate to a second, streamed pass.
+                </p>
+              </div>
+            </details>
+
+            <details>
+              <summary>Can I call Xonus from the browser?</summary>
+              <div class="faq-answer">
+                <p>
+                  Technically yes — the package is ESM and has no Node-only dependencies.
+                  But do not ship a Gemini API key in client-side code. Put Xonus behind
+                  your own API route or serverless function and call it from the browser.
+                </p>
+              </div>
+            </details>
+
+            <details>
+              <summary>Which models are supported?</summary>
+              <div class="faq-answer">
+                <p>
+                  Any Gemini model that supports <code class="inline-code">responseLogprobs</code>.
+                  The default is <code class="inline-code">gemini-2.5-flash</code>. Model
+                  names and thinking budgets are configurable.
+                </p>
+              </div>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================= CTA -->
+      <section class="section" id="start" style="border-bottom: 1px solid var(--border)">
+        <div class="container">
+          <div class="cta-band reveal">
+            <div class="cta-grid">
+              <div>
+                <h2>Ship the decision, not the paragraph.</h2>
+                <p>
+                  Install Xonus, add one API key, and give every project the same
+                  calibrated primitive for routing and classification.
+                </p>
+                <div class="hero-actions">
+                  <a class="btn btn-primary" href="/docs#quickstart">
+                    Get started <span class="arrow">→</span>
+                  </a>
+                  <a
+                    class="btn btn-ghost"
+                    href="https://www.npmjs.com/package/xonus"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    npm install xonus <span class="arrow">↗</span>
+                  </a>
+                </div>
+              </div>
+              <div class="terminal" style="max-width: 380px">
+                <div class="terminal-bar">
+                  <span class="dot"></span>
+                  <span class="dot"></span>
+                  <span class="dot"></span>
+                  <span class="terminal-title">install</span>
+                </div>
+                <div class="terminal-body" style="padding-bottom: 22px">
+                  <div><span class="prompt">$</span> npm install xonus</div>
+                  <div><span class="prompt">✓</span> added 2 packages</div>
+                  <div><span class="prompt">→</span> ready in <span class="ok">1.4s</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+  <Footer slot="footer" />
+</Layout>

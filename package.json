@@ -1,0 +1,21 @@
+{
+  "name": "xonus-monorepo",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Xonus SDK and marketing site",
+  "workspaces": [
+    "sdk",
+    "landing"
+  ],
+  "scripts": {
+    "dev:landing": "npm run dev --workspace @xonus/landing",
+    "build": "npm run build --workspace xonus",
+    "build:landing": "npm run build --workspace @xonus/landing",
+    "build:all": "npm run build && npm run build:landing",
+    "preview:landing": "npm run preview --workspace @xonus/landing",
+    "check:landing": "npm run check --workspace @xonus/landing",
+    "test": "npm run test --workspace xonus",
+    "typecheck": "npm run typecheck --workspace xonus",
+    "pack:check": "npm pack --workspace xonus --dry-run"
+  }
+}

@@ -1,0 +1,1011 @@
+---
+import Layout from '../layouts/Layout.astro';
+import CodeBlock from '../components/CodeBlock.astro';
+import { snippets } from '../data/snippets';
+
+const year = new Date().getFullYear();
+---
+
+<Layout
+  title="Xonus documentation — Decisions with evidence"
+  description="Xonus documentation: install, configure, and use the Gemini-native decision engine with log-odds early stopping and answer-mass gating."
+  docs
+>
+
+      <section class="docs-hero">
+        <div class="container">
+          <span class="eyebrow"><span class="dot"></span> Documentation · v0.1.0</span>
+          <h1>Build decisions, not paragraphs.</h1>
+          <p>
+            Everything you need to install Xonus, tune it for your risk tolerance, and
+            read the evidence behind every decision.
+          </p>
+          <div class="hero-meta">
+            <span>Gemini-native</span>
+            <span>TypeScript · ESM + CJS</span>
+            <span>MIT licensed</span>
+          </div>
+        </div>
+      </section>
+
+      <div class="container docs-shell">
+        <aside class="docs-sidebar">
+          <nav aria-label="Documentation">
+            <div class="sidebar-group">
+              <h5>Get started</h5>
+              <ul>
+                <li><a href="#overview" data-doc-link>Overview</a></li>
+                <li><a href="#installation" data-doc-link>Installation</a></li>
+                <li><a href="#quickstart" data-doc-link>Quickstart</a></li>
+              </ul>
+            </div>
+            <div class="sidebar-group">
+              <h5>Guides</h5>
+              <ul>
+                <li><a href="#how-it-works" data-doc-link>How it works</a></li>
+                <li><a href="#configuration" data-doc-link>Configuration</a></li>
+                <li><a href="#tuning" data-doc-link>Tuning</a></li>
+                <li><a href="#examples" data-doc-link>Examples</a></li>
+                <li><a href="#models" data-doc-link>Models &amp; limits</a></li>
+              </ul>
+            </div>
+            <div class="sidebar-group">
+              <h5>API</h5>
+              <ul>
+                <li><a href="#decide" data-doc-link>decide()</a></li>
+                <li><a href="#decide-batch" data-doc-link>decideBatch()</a></li>
+                <li><a href="#errors" data-doc-link>Errors</a></li>
+              </ul>
+            </div>
+            <div class="sidebar-group">
+              <h5>Project</h5>
+              <ul>
+                <li><a href="#publishing" data-doc-link>Publishing</a></li>
+                <li><a href="#faq" data-doc-link>FAQ</a></li>
+                <li><a href="#license" data-doc-link>License</a></li>
+              </ul>
+            </div>
+          </nav>
+        </aside>
+
+        <article class="docs-content">
+          <details class="docs-mobile-nav">
+            <summary>On this page</summary>
+            <nav aria-label="Documentation (mobile)"></nav>
+          </details>
+
+          <!-- ============================================================ Overview -->
+          <section class="doc-section" id="overview">
+            <h2>Overview</h2>
+            <p class="lead">
+              Xonus is a small, typed decision engine for Gemini. Give it a question and
+              a fixed set of options; it returns the chosen option, the full probability
+              distribution, and a <code>confident</code> flag you can safely branch on.
+            </p>
+            <p>
+              Under the hood it reads token-level log probabilities, computes the
+              log-odds margin between the top two options, and stops generating as soon
+              as the answer is settled. Decisions that are not settled get one
+              deliberation pass. A separate answer-mass gate checks that the model put
+              its probability on valid options.
+            </p>
+
+            <CodeBlock code={snippets.hello} lang="ts" file="hello.ts" />
+
+            <h3>Design principles</h3>
+            <ul>
+              <li>
+                <strong>Evidence over prose.</strong> The model's token distribution is
+                the output, not a side effect to be discarded.
+              </li>
+              <li>
+                <strong>Deterministic by default.</strong> The fast pass uses temperature
+                <code>0</code> and a single option letter.
+              </li>
+              <li>
+                <strong>Honest uncertainty.</strong> If logprobs are unavailable, Xonus
+                returns <code>confidence: 0</code> instead of inventing a number.
+              </li>
+              <li>
+                <strong>No hidden state.</strong> No global singleton, no agent loop, no
+                storage. Every decision is a function call.
+              </li>
+            </ul>
+
+            <div class="callout">
+              <span class="callout-icon">i</span>
+              <div>
+                <p>
+                  Xonus is Gemini-native. It uses the
+                  <code>@google/genai</code> SDK and the <code>responseLogprobs</code>
+                  generation option. It is not a provider-agnostic router.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <!-- ========================================================= Installation -->
+          <section class="doc-section" id="installation">
+            <h2>Installation</h2>
+            <p>Install the package with your package manager of choice.</p>
+
+            <CodeBlock code={snippets.install} lang="bash" />
+
+            <div class="pill-row">
+              <span class="pill"><strong>Node</strong> 18+</span>
+              <span class="pill"><strong>Bun</strong> supported</span>
+              <span class="pill"><strong>Deno</strong> npm: specifier</span>
+              <span class="pill"><strong>Browsers</strong> via your own proxy</span>
+            </div>
+
+            <h3>API key</h3>
+            <p>
+              Create a key in
+              <a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer">
+                Google AI Studio</a
+              >. Xonus reads the key you pass explicitly, or one of these environment
+              variables when you use <code>Xonus.fromEnv()</code>:
+            </p>
+
+            <CodeBlock code={snippets.envFile} lang="bash" file=".env" />
+
+            <p>On PowerShell:</p>
+            <CodeBlock code={snippets.powershell} lang="powershell" />
+
+            <div class="callout warn">
+              <span class="callout-icon">!</span>
+              <div>
+                <p>
+                  Never ship a Gemini API key to a browser. Keep Xonus on the server and
+                  expose a narrow endpoint that accepts the question and options.
+                </p>
+              </div>
+            </div>
+
+            <h3>Module formats</h3>
+            <p>The package publishes both ESM and CommonJS, with matching declarations.</p>
+
+            <CodeBlock code={snippets.esm} lang="ts" file="esm.ts" />
+
+            <CodeBlock code={snippets.commonjs} lang="js" file="commonjs.cjs" />
+
+            <div class="callout">
+              <span class="callout-icon">→</span>
+              <div>
+                <p>
+                  TypeScript users need no extra setup. Types resolve automatically for
+                  both <code>import</code> and <code>require</code>.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <!-- =========================================================== Quickstart -->
+          <section class="doc-section" id="quickstart">
+            <h2>Quickstart</h2>
+            <p class="lead">
+              The shortest useful integration is a constructor and one
+              <code>decide()</code> call.
+            </p>
+
+            <CodeBlock code={snippets.triage} lang="ts" file="triage.ts" />
+
+            <h3>Route on confidence</h3>
+            <p>
+              Do not branch on <code>decision</code> alone. The quality signal is
+              <code>confident</code>, which requires both a decisive margin and a passing
+              answer-mass gate.
+            </p>
+
+            <CodeBlock code={snippets.routeOnConfidence} lang="ts" />
+
+            <h3>Use the environment</h3>
+            <p>
+              <code>Xonus.fromEnv()</code> resolves
+              <code>XONUS_API_KEY</code>, <code>GEMINI_API_KEY</code>, or
+              <code>GOOGLE_API_KEY</code>, in that order. Any config option can be
+              overridden inline.
+            </p>
+
+            <CodeBlock code={snippets.fromEnv} lang="ts" />
+          </section>
+
+          <!-- ========================================================= How it works -->
+          <section class="doc-section" id="how-it-works">
+            <h2>How it works</h2>
+            <p class="lead">
+              Xonus runs a two-pass protocol. The first pass is designed to be sufficient
+              most of the time; the second exists for the cases where it is not.
+            </p>
+
+            <h3>1. Fast pass</h3>
+            <p>
+              Xonus maps the options to letters and asks Gemini for exactly one letter.
+              The request uses temperature <code>0</code>, a short token budget, and:
+            </p>
+
+            <CodeBlock code={snippets.fastConfig} lang="ts" />
+
+            <p>
+              Every token spelling of an option letter is summed into that option's
+              probability. The result is normalized over the options, while the raw mass
+              is kept separately as <code>answerMass</code>.
+            </p>
+
+            <h3>2. Accept or escalate</h3>
+            <p>The fast pass is accepted only when both conditions hold:</p>
+            <CodeBlock code={snippets.conditions} lang="text" />
+            <p>
+              If both pass, Xonus returns immediately with
+              <code>passes: 1</code> and <code>earlyStopped: true</code>. No reasoning
+              tokens are generated.
+            </p>
+
+            <h3>3. Deliberation pass</h3>
+            <p>
+              Otherwise, Xonus streams a second request that asks for a short
+              justification followed by an explicit marker:
+            </p>
+            <CodeBlock code={snippets.finalAnswer} lang="text" />
+            <p>
+              The stream is inspected chunk by chunk. Xonus tracks the distribution at
+              every position where the generated token is an option letter, then matches
+              it to the letter in the final answer marker. As soon as that margin clears
+              <code>tau</code>, the underlying request is aborted. If the margin never
+              clears <code>tau</code>, Xonus reads the stream to completion and returns
+              the final evidence with <code>confident: false</code>.
+            </p>
+
+            <h3>4. Gate and confidence</h3>
+            <p>
+              At the end, two independent booleans are reported:
+            </p>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Field</th>
+                    <th>Meaning</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>decisive</td>
+                    <td><code>logOdds &gt;= tau</code>. The top option is far ahead.</td>
+                  </tr>
+                  <tr>
+                    <td>gatePassed</td>
+                    <td>
+                      <code>answerMass &gt;= answerMassGate</code>. The model is answering
+                      inside the option set.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>confident</td>
+                    <td>
+                      Both of the above. This is the only field intended for automation
+                      branches.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h3>5. Fallbacks</h3>
+            <ul>
+              <li>
+                If the fast pass yields no usable logprobs but the text contains a
+                letter, Xonus uses the text answer with <code>confidence: 0</code> and
+                <code>answerMass: 0</code>.
+              </li>
+              <li>
+                If deliberation produces no logprobs but does produce a
+                <code>FINAL ANSWER</code> marker, the decision is returned with
+                <code>source: "text"</code> and <code>confident: false</code>.
+              </li>
+              <li>
+                If nothing usable is returned, Xonus throws
+                <code>XonusParseError</code> instead of guessing.
+              </li>
+            </ul>
+
+            <div class="callout">
+              <span class="callout-icon">i</span>
+              <div>
+                <p>
+                  <code>answerMass</code> is computed from the top
+                  <code>topLogprobs</code> candidates, so it is a lower bound on the
+                  model's true mass on the options. A gate of <code>0.99</code> is
+                  intentionally strict; lowering it is the most common tuning step.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <!-- ========================================================= Configuration -->
+          <section class="doc-section" id="configuration">
+            <h2>Configuration</h2>
+            <p>
+              Pass options to the <code>Xonus</code> constructor or
+              <code>createXonus()</code>. Every field except <code>apiKey</code> is
+              optional.
+            </p>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Option</th>
+                    <th>Default</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>apiKey</td>
+                    <td>—</td>
+                    <td>
+                      Google AI Studio key. Required unless a custom <code>client</code>
+                      is provided.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>modelName</td>
+                    <td><code>gemini-2.5-flash</code></td>
+                    <td>Any Gemini model supporting <code>responseLogprobs</code>.</td>
+                  </tr>
+                  <tr>
+                    <td>tau</td>
+                    <td><code>6.0</code></td>
+                    <td>
+                      Log-odds margin required for early acceptance. Default is ≈403:1.
+                      <code>0</code> accepts any margin.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>answerMassGate</td>
+                    <td><code>0.99</code></td>
+                    <td>
+                      Minimum mass on valid option tokens. Must be greater than 0 and at
+                      most 1.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>topLogprobs</td>
+                    <td><code>20</code></td>
+                    <td>Candidate tokens per step, 1–20.</td>
+                  </tr>
+                  <tr>
+                    <td>maxOutputTokens</td>
+                    <td><code>512</code></td>
+                    <td>Token budget for the deliberation pass only.</td>
+                  </tr>
+                  <tr>
+                    <td>temperature</td>
+                    <td><code>0</code></td>
+                    <td>
+                      Deliberation sampling temperature. The fast pass is always
+                      <code>0</code>.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>escalate</td>
+                    <td><code>true</code></td>
+                    <td>Run a second pass when the fast pass is not accepted.</td>
+                  </tr>
+                  <tr>
+                    <td>includeRationale</td>
+                    <td><code>true</code></td>
+                    <td>Return the justification from a deliberation pass.</td>
+                  </tr>
+                  <tr>
+                    <td>timeoutMs</td>
+                    <td><code>30000</code></td>
+                    <td>Deadline for the whole decision, including both passes.</td>
+                  </tr>
+                  <tr>
+                    <td>maxRetries</td>
+                    <td><code>2</code></td>
+                    <td>Retries for 429, 5xx, and network failures, 0–10.</td>
+                  </tr>
+                  <tr>
+                    <td>generationConfig</td>
+                    <td>—</td>
+                    <td>
+                      Extra Gemini generation config. Xonus forces logprobs, temperature,
+                      and candidate count; response schemas are ignored.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>client</td>
+                    <td>—</td>
+                    <td>
+                      A pre-built <code>GoogleGenAI</code> instance for custom auth,
+                      proxies, or tests.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h3>Advanced config</h3>
+            <CodeBlock code={snippets.advancedConfig} lang="ts" />
+
+            <div class="callout warn">
+              <span class="callout-icon">!</span>
+              <div>
+                <p>
+                  <code>responseMimeType</code>, <code>responseSchema</code>, and
+                  <code>responseJsonSchema</code> are stripped from
+                  <code>generationConfig</code>. Xonus needs a single letter, not a JSON
+                  object.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <!-- ============================================================= decide -->
+          <section class="doc-section" id="decide">
+            <h2>API · decide()</h2>
+            <div class="api-sig"><span class="m">decide</span>(request: <span class="t">DecisionRequest</span>): Promise&lt;<span class="t">DecisionResponse</span>&gt;</div>
+
+            <h3>DecisionRequest</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>question</td>
+                    <td><code>string</code></td>
+                    <td>Required. The decision to make.</td>
+                  </tr>
+                  <tr>
+                    <td>options</td>
+                    <td><code>string[]</code></td>
+                    <td>
+                      Required. Two to twenty-six unique, non-empty options. Order defines
+                      the letter mapping.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>state</td>
+                    <td><code>string</code></td>
+                    <td>
+                      Optional context: retrieved documents, ticket text, conversation
+                      state. Treated as untrusted data.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>signal</td>
+                    <td><code>AbortSignal</code></td>
+                    <td>Optional cancellation signal for this decision.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h3>DecisionResponse</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>decision</td>
+                    <td><code>string</code></td>
+                    <td>The chosen option, verbatim from the input.</td>
+                  </tr>
+                  <tr>
+                    <td>probabilities</td>
+                    <td><code>Record&lt;string, number&gt;</code></td>
+                    <td>
+                      Normalized probability per option, keyed by option text. Sums to 1
+                      when evidence exists; empty on text-only fallback.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>confidence</td>
+                    <td><code>number</code></td>
+                    <td>Probability assigned to the chosen option. <code>0</code> in text fallback.</td>
+                  </tr>
+                  <tr>
+                    <td>logOdds</td>
+                    <td><code>number</code></td>
+                    <td>
+                      Margin between the top two options, capped at
+                      <code>99</code> so results stay JSON-safe.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>answerMass</td>
+                    <td><code>number</code></td>
+                    <td>Raw mass on valid option tokens, 0–1.</td>
+                  </tr>
+                  <tr>
+                    <td>gatePassed</td>
+                    <td><code>boolean</code></td>
+                    <td><code>answerMass &gt;= answerMassGate</code>.</td>
+                  </tr>
+                  <tr>
+                    <td>decisive</td>
+                    <td><code>boolean</code></td>
+                    <td><code>logOdds &gt;= tau</code>.</td>
+                  </tr>
+                  <tr>
+                    <td>confident</td>
+                    <td><code>boolean</code></td>
+                    <td><code>gatePassed &amp;&amp; decisive</code>.</td>
+                  </tr>
+                  <tr>
+                    <td>optionIndex</td>
+                    <td><code>number</code></td>
+                    <td>Zero-based index of the chosen option.</td>
+                  </tr>
+                  <tr>
+                    <td>escalated</td>
+                    <td><code>boolean</code></td>
+                    <td>Whether a deliberation pass ran.</td>
+                  </tr>
+                  <tr>
+                    <td>earlyStopped</td>
+                    <td><code>boolean</code></td>
+                    <td>
+                      Whether the decision was accepted in the fast pass, or the
+                      deliberation stream was aborted at a decisive answer.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>passes</td>
+                    <td><code>1 | 2</code></td>
+                    <td>Number of Gemini passes used.</td>
+                  </tr>
+                  <tr>
+                    <td>source</td>
+                    <td><code>'fast' | 'deliberate' | 'text'</code></td>
+                    <td>Where the final evidence came from.</td>
+                  </tr>
+                  <tr>
+                    <td>model</td>
+                    <td><code>string</code></td>
+                    <td>Configured model name.</td>
+                  </tr>
+                  <tr>
+                    <td>latencyMs</td>
+                    <td><code>number</code></td>
+                    <td>Wall-clock latency for the decision.</td>
+                  </tr>
+                  <tr>
+                    <td>rationale</td>
+                    <td><code>string?</code></td>
+                    <td>Short justification from a deliberation pass, when available.</td>
+                  </tr>
+                  <tr>
+                    <td>notes</td>
+                    <td><code>string[]</code></td>
+                    <td>Non-fatal diagnostics such as <code>deliberate_unparsed</code>.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h3>Example response</h3>
+            <CodeBlock code={snippets.apiResponse} lang="json" file="result.json" />
+
+            <div class="callout">
+              <span class="callout-icon">i</span>
+              <div>
+                <p>
+                  Probabilities are re-normalized over your options, but
+                  <code>answerMass</code> is not. That difference is what makes the gate
+                  useful: it can reveal that the model spent probability outside the
+                  option set.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <!-- ======================================================== decideBatch -->
+          <section class="doc-section" id="decide-batch">
+            <h2>API · decideBatch()</h2>
+            <div class="api-sig"><span class="m">decideBatch</span>(
+  requests: <span class="t">DecisionRequest</span>[],
+  options?: <span class="t">DecideBatchOptions</span>
+): Promise&lt;<span class="t">DecisionResponse</span>[]&gt;</div>
+
+            <p>
+              Runs decisions with bounded concurrency and preserves input order. The
+              default concurrency is <code>4</code>. Each decision keeps its own timeout
+              and retry budget.
+            </p>
+
+            <CodeBlock code={snippets.batchAdvanced} lang="ts" />
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Option</th>
+                    <th>Default</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>concurrency</td>
+                    <td><code>4</code></td>
+                    <td>Positive integer. Caps simultaneous decisions.</td>
+                  </tr>
+                  <tr>
+                    <td>signal</td>
+                    <td>—</td>
+                    <td>Aborts every decision in the batch.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="callout warn">
+              <span class="callout-icon">!</span>
+              <div>
+                <p>
+                  A batch is fail-fast: the first rejected decision rejects the batch
+                  promise. Wrap the call in <code>try/catch</code> if partial results are
+                  acceptable, or call <code>decide()</code> directly for per-item error
+                  handling.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <!-- ============================================================= Errors -->
+          <section class="doc-section" id="errors">
+            <h2>Errors</h2>
+            <p>
+              Every error extends <code>XonusError</code> and exposes a stable
+              <code>code</code>. API failures keep the original error as
+              <code>cause</code>.
+            </p>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Class</th>
+                    <th>Code</th>
+                    <th>When</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>XonusConfigError</td>
+                    <td><code>XONUS_CONFIG</code></td>
+                    <td>Missing key, invalid threshold, bad option count in config.</td>
+                  </tr>
+                  <tr>
+                    <td>XonusInputError</td>
+                    <td><code>XONUS_INPUT</code></td>
+                    <td>Empty question, duplicate options, fewer than 2 or more than 26 options.</td>
+                  </tr>
+                  <tr>
+                    <td>XonusApiError</td>
+                    <td><code>XONUS_API</code></td>
+                    <td>Gemini or network failure. Includes <code>status</code> when known.</td>
+                  </tr>
+                  <tr>
+                    <td>XonusParseError</td>
+                    <td><code>XONUS_PARSE</code></td>
+                    <td>No usable option could be recovered from the response.</td>
+                  </tr>
+                  <tr>
+                    <td>XonusAbortError</td>
+                    <td><code>XONUS_ABORTED</code></td>
+                    <td>The caller's signal was aborted.</td>
+                  </tr>
+                  <tr>
+                    <td>XonusTimeoutError</td>
+                    <td><code>XONUS_TIMEOUT</code></td>
+                    <td>The <code>timeoutMs</code> deadline elapsed.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <CodeBlock code={snippets.errorHandling} lang="ts" />
+
+            <h3>Retries</h3>
+            <p>
+              Xonus retries HTTP 429, 408, 5xx, and common network failures with
+              exponential backoff and jitter. Retries happen only around request
+              startup: the fast request and the opening of the deliberation stream.
+              Partial streams are never replayed.
+            </p>
+          </section>
+
+          <!-- ============================================================= Tuning -->
+          <section class="doc-section" id="tuning">
+            <h2>Tuning</h2>
+            <p>
+              Two numbers control almost everything:
+              <code>tau</code> (decisiveness) and <code>answerMassGate</code>
+              (on-protocol probability). Tune them against a labelled sample, not by
+              intuition alone.
+            </p>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Goal</th>
+                    <th>Settings</th>
+                    <th>Trade-off</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Maximum precision</td>
+                    <td><code>tau: 8</code>, <code>gate: 0.995</code></td>
+                    <td>More human escalations; fewer confident mistakes.</td>
+                  </tr>
+                  <tr>
+                    <td>Fewer escalations</td>
+                    <td><code>tau: 4</code>, <code>gate: 0.95</code></td>
+                    <td>More automation, less certainty per decision.</td>
+                  </tr>
+                  <tr>
+                    <td>Cheapest mode</td>
+                    <td><code>escalate: false</code>, <code>maxRetries: 1</code></td>
+                    <td>One short request per decision; uncertain results are returned flagged.</td>
+                  </tr>
+                  <tr>
+                    <td>Lowest latency</td>
+                    <td><code>timeoutMs: 5000</code>, <code>maxOutputTokens: 256</code></td>
+                    <td>Some decisions time out and need a fallback.</td>
+                  </tr>
+                  <tr>
+                    <td>Harder reasoning</td>
+                    <td><code>thinkingBudget: 256</code>, <code>maxOutputTokens: 1024</code></td>
+                    <td>Higher cost and latency on escalated decisions.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h3>What to log</h3>
+            <p>
+              For each decision, record <code>decision</code>, <code>confident</code>,
+              <code>logOdds</code>, <code>answerMass</code>, <code>passes</code>, and
+              <code>latencyMs</code>. Plot the distributions of <code>logOdds</code> and
+              <code>answerMass</code> against correctness on a labelled set. Pick the
+              thresholds where the confident bucket meets your error budget.
+            </p>
+
+            <div class="callout warn">
+              <span class="callout-icon">!</span>
+              <div>
+                <p>
+                  Do not raise <code>answerMassGate</code> above what your
+                  <code>topLogprobs</code> setting can observe. With only 20 candidates,
+                  mass can look lower than it truly is. If a gate of <code>0.99</code>
+                  rejects almost everything, lower the gate before increasing logprobs.
+                </p>
+              </div>
+            </div>
+
+            <h3>Threshold intuition</h3>
+            <ul>
+              <li><code>tau = 4.6</code> is roughly 100:1 odds.</li>
+              <li><code>tau = 6.0</code> is roughly 403:1 odds.</li>
+              <li><code>tau = 6.9</code> is roughly 1,000:1 odds.</li>
+              <li><code>tau = 8.0</code> is roughly 2,981:1 odds.</li>
+            </ul>
+          </section>
+
+          <!-- ============================================================ Examples -->
+          <section class="doc-section" id="examples">
+            <h2>Examples</h2>
+
+            <h3>Support triage</h3>
+            <p>
+              Route only confident tickets. Send the rest to a human with the evidence
+              attached.
+            </p>
+            <CodeBlock code={snippets.supportTriage} lang="ts" />
+
+            <h3>Agent tool routing</h3>
+            <p>
+              Treat tools as options and let the margin decide whether the agent should
+              act or ask a clarifying question.
+            </p>
+            <CodeBlock code={snippets.toolRouting} lang="ts" />
+
+            <h3>Moderation</h3>
+            <p>
+              Prefer the conservative branch. It is not enough to be confident; the
+              confident answer must also be the safe one.
+            </p>
+            <CodeBlock code={snippets.moderation} lang="ts" />
+
+            <h3>Lead scoring</h3>
+            <CodeBlock code={snippets.leadScoring} lang="ts" />
+          </section>
+
+          <!-- ============================================================== Models -->
+          <section class="doc-section" id="models">
+            <h2>Models &amp; limits</h2>
+            <p>
+              The only hard requirement is that the model returns token log
+              probabilities through <code>responseLogprobs</code>. The default,
+              <code>gemini-2.5-flash</code>, supports it and balances latency, cost, and
+              decision quality.
+            </p>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Topic</th>
+                    <th>Behavior</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Logprobs</td>
+                    <td>
+                      Requested with <code>topLogprobs</code> candidates (max 20). If the
+                      model omits them, Xonus falls back to text and reports zero
+                      confidence.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Thinking</td>
+                    <td>
+                      Disabled by default (<code>thinkingBudget: 0</code>) for predictable
+                      cost and clean decision tokens. Override through
+                      <code>generationConfig</code>.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Output limits</td>
+                    <td>
+                      Fast pass: 32 tokens max. Deliberation:
+                      <code>maxOutputTokens</code> (default 512).
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Options</td>
+                    <td>2–26, each non-empty and unique.</td>
+                  </tr>
+                  <tr>
+                    <td>Streaming</td>
+                    <td>Deliberation is always streamed so Xonus can abort early.</td>
+                  </tr>
+                  <tr>
+                    <td>Cost</td>
+                    <td>
+                      One short request for confident decisions; two requests only when
+                      escalation is needed. No sampling loop.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="callout">
+              <span class="callout-icon">i</span>
+              <div>
+                <p>
+                  Xonus caps <code>logOdds</code> at <code>99</code> so the value survives
+                  <code>JSON.stringify</code>. A capped value means the runner-up was
+                  effectively zero; it is not a precision limit on the model.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <!-- =========================================================== Publishing -->
+          <section class="doc-section" id="publishing">
+            <h2>Publishing</h2>
+            <p>
+              The package lives in <code>sdk/</code>. The name <code>xonus</code> was
+              available on npm when this scaffold was created.
+            </p>
+
+            <CodeBlock code={snippets.publishSteps} lang="bash" />
+
+            <p>Then publish from the authenticated account:</p>
+
+            <CodeBlock code={snippets.publishCommand} lang="bash" />
+
+            <div class="callout warn">
+              <span class="callout-icon">!</span>
+              <div>
+                <p>
+                  Publishing is not automated. Running <code>npm publish</code> makes the
+                  package public and should be an explicit, reviewed action. Bump the
+                  version in <code>sdk/package.json</code> before each release.
+                </p>
+              </div>
+            </div>
+
+            <h3>Package contents</h3>
+            <CodeBlock code={snippets.packageContents} lang="text" />
+          </section>
+
+          <!-- ================================================================ FAQ -->
+          <section class="doc-section" id="faq">
+            <h2>FAQ</h2>
+
+            <h3>Is Xonus an LLM?</h3>
+            <p>
+              No. It is a thin, typed layer over Gemini that turns a multiple-choice
+              question into a probability-aware decision. It does not train or host a
+              model.
+            </p>
+
+            <h3>Can I use it with OpenAI or Anthropic?</h3>
+            <p>
+              Not directly. The implementation depends on Gemini's
+              <code>responseLogprobs</code> response shape. A different provider would
+              need its own adapter in <code>src/logprobs.ts</code> and
+              <code>src/xonus.ts</code>.
+            </p>
+
+            <h3>Why letters instead of option text?</h3>
+            <p>
+              Option text spans many tokens and has inconsistent tokenization. A single
+              letter gives Xonus one clean decision point whose distribution can be read
+              directly.
+            </p>
+
+            <h3>What does <code>earlyStopped</code> mean?</h3>
+            <p>
+              It means Xonus avoided work: either the fast pass was accepted without
+              deliberation, or the deliberation stream was aborted as soon as the final
+              answer was decisive.
+            </p>
+
+            <h3>Why is <code>confident</code> false even though <code>logOdds</code> is high?</h3>
+            <p>
+              The answer-mass gate failed. The model was decisive between the top two
+              options but placed too much probability outside the valid option set. Lower
+              <code>answerMassGate</code>, improve the prompt/state, or review the case.
+            </p>
+
+            <h3>Does Xonus store anything?</h3>
+            <p>
+              No. The SDK is stateless. Requests go directly from your process to the
+              Gemini API using your key.
+            </p>
+          </section>
+
+          <!-- ============================================================== License -->
+          <section class="doc-section" id="license">
+            <h2>License</h2>
+            <p>
+              Xonus is released under the MIT License. You can use it in commercial and
+              closed-source projects. See <code>sdk/LICENSE</code> in the repository.
+            </p>
+            <p class="small muted">
+              Xonus is an independent project and is not affiliated with Google. Gemini
+              is a trademark of Google LLC.
+            </p>
+          </section>
+
+          <div class="docs-footer">
+            <span>© {year} Xonus · v0.1.0</span>
+            <span><a href="/" class="muted">← Back to landing</a></span>
+          </div>
+        </article>
+      </div>
+</Layout>
